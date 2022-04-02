@@ -16,8 +16,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class LwjglWindow {
 
-	public static int WIDTH = 600;
-    public static int HEIGHT = 400;
+	public static int WIDTH = 1280;
+    public static int HEIGHT = 850;
 
     // The window handle
 	private long window;
@@ -170,6 +170,7 @@ public class LwjglWindow {
 		glfwMakeContextCurrent(window);
 		// Enable v-sync
 		glfwSwapInterval(1);
+		glfwSetWindowTitle(window, "KPGR3 Example01");
 
 		// Make the window visible
 		glfwShowWindow(window);
@@ -191,7 +192,9 @@ public class LwjglWindow {
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		while ( !glfwWindowShouldClose(window) ) {
-			
+			// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); clear the framebuffer
+			// glUseProgram(shaderProgram);
+			// bindBuffers();
 			renderer.display();
 			
 			glfwSwapBuffers(window); // swap the color buffers
