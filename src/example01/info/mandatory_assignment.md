@@ -1,5 +1,5 @@
 První úloha: zobrazení prostorové scény obsahující geometrického tělesa definované pomocí rovinného gridu trojúhelníků, s mapováním textury na povrchu, s osvětlením a vrženými stíny
-1. Prostudujte si ukázky programování shaderů v gitovém repositáři.
+1. [done] Prostudujte si ukázky programování shaderů v gitovém repositáři.
 2. Vytvořte vertex a index buffer pro uložení geometrie tělesa založené na síti trojúhelníků – grid. Vyzkoušejte implementaci gridu pomoci seznamu (list) i pásu trojúhelníků (strip). Model zobrazte ve formě bodů, hran i vyplněných ploch.
 3. Shaderovým programem ve vertex shaderu modifikujte tvar rovinného gridu na prostorové těleso.
    1. Tělesa definujte pomocí parametrických funkcí uvedených například na následujících odkazech.
