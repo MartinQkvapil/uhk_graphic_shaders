@@ -118,19 +118,13 @@ public abstract class AbstractRenderer {
 		return wsCallback;
 	}
 
-	public GLFWMouseButtonCallback getMouseCallback() {
-		return mbCallback;
-	}
+	public GLFWMouseButtonCallback getMouseCallback() { return mbCallback; }
 
-	public GLFWCursorPosCallback getCursorCallback() {
-		return cpCallbacknew;
-	}
+	public GLFWCursorPosCallback getCursorCallback() { return cpCallbacknew; }
 	
 	public GLFWScrollCallback getScrollCallback() {
 		return scrollCallback;
 	}
-	
-	public void dispose(){
-		
-	}
+
+	public void dispose() {}
 }
