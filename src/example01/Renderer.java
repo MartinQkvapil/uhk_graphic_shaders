@@ -18,17 +18,23 @@ import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 
 public class Renderer extends AbstractRenderer{
 
+    // Shaders
     private int shaderProgramMain, shaderProgramPost;
-    private OGLBuffers buffersMain;
-    private int viewLocation;
-    private int projectionLocation;
+    // Buffers
+    private OGLBuffers buffersMain, buffersPost;
+
     private Camera camera;
+
+    // Locations
+    private int viewLocation, projectionLocation;
+
     private Mat4 projection;
     private OGLTexture2D textureMosaic;
-    private OGLBuffers buffersPost;
 
-    // Controls
-    private boolean cursorPressed = false;
+    // Window controls
+    public static final double SPEED_OF_WASD = 0.05;
+
+    private boolean mousePressed = false;
     private int buttonPressed;
     private double oldMx, oldMy;
     private OGLRenderTarget renderTarget;
@@ -38,10 +44,7 @@ public class Renderer extends AbstractRenderer{
 
     @Override
     public void init() {
-        OGLUtils.printOGLparameters();
-        OGLUtils.printLWJLparameters();
-        OGLUtils.printJAVAparameters();
-        OGLUtils.shaderCheck();
+        printingOGLUParameters();
 
         glClearColor(0.1f, 0.1f, 0.1f, 1f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -49,13 +52,13 @@ public class Renderer extends AbstractRenderer{
         shaderProgramMain = ShaderUtils.loadProgram("/example01/main");
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
+
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
 
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
 
 
-        // DATA
-        camera = new Camera().withPosition(new Vec3D(2, 2, 2)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
+        resetCamera();
 
         projection = new Mat4PerspRH(
                 Math.PI / 3,
@@ -84,6 +87,8 @@ public class Renderer extends AbstractRenderer{
         textRenderer.setBackgroundColor(new Color(0.0f, 0.0f, 0.0f, 0.0f));
     }
 
+
+
     private void loadTextures() {
     }
 
@@ -106,7 +111,6 @@ public class Renderer extends AbstractRenderer{
         renderTarget.bind();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         glUniformMatrix4fv(viewLocation, false,  camera.getViewMatrix().floatArray());
         glUniformMatrix4fv(projectionLocation, false, projection.floatArray());
 
@@ -127,42 +131,13 @@ public class Renderer extends AbstractRenderer{
 
         renderTarget.getColorTexture().bind(shaderProgramPost, "textureRendered", 0);
         buffersPost.draw(GL_TRIANGLES, shaderProgramPost);
-
-
     }
-
-
-
-//	private GLFWKeyCallback   keyCallback = new GLFWKeyCallback() {
-//		@Override
-//		public void invoke(long window, int key, int scancode, int action, int mods) {
-//		}
-//	};
-//
-//    private GLFWWindowSizeCallback wsCallback = new GLFWWindowSizeCallback() {
-//        @Override
-//        public void invoke(long window, int w, int h) {
-//        }
-//    };
-//
-//    private GLFWMouseButtonCallback mbCallback = new GLFWMouseButtonCallback () {
-//		@Override
-//		public void invoke(long window, int button, int action, int mods) {
-//		}
-//
-//	};
-
-//
-//    private GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
-//        @Override public void invoke (long window, double dx, double dy) {
-//        }
-//    };
 
 
     private final GLFWCursorPosCallback cursorPosCallback = new GLFWCursorPosCallback() {
         @Override
         public void invoke(long window, double x, double y) {
-            if (cursorPressed) {
+            if (mousePressed) {
                 switch (buttonPressed) {
                     case GLFW_MOUSE_BUTTON_LEFT:
                         System.out.println("Left button to move click.");
@@ -171,8 +146,12 @@ public class Renderer extends AbstractRenderer{
                         oldMx = x;
                         oldMy = y;
                         break;
+                    case GLFW_MOUSE_BUTTON_RIGHT:
+                        System.out.println("Right button to move click.");
+                        break;
                     default:
-                        System.err.println("ALERT - Undetected button pressed");
+                        System.out.println("Cursor not handled - " + buttonPressed);
+                        break;
                 }
             }
         }
@@ -186,7 +165,7 @@ public class Renderer extends AbstractRenderer{
             glfwGetCursorPos(window, xPos, yPos);
             oldMx = xPos[0];
             oldMy = yPos[0];
-            cursorPressed = action == GLFW_PRESS;
+            mousePressed = action == GLFW_PRESS;
             buttonPressed = button;
         }
     };
@@ -215,6 +194,23 @@ public class Renderer extends AbstractRenderer{
     };
 
 
+    private final GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
+        @Override
+        public void invoke(long window, int key, int scancode, int action, int mods) {
+
+            switch (key) {
+                case GLFW_KEY_R: // RESET
+                    resetCamera();
+                    break;
+                case GLFW_KEY_W: camera = camera.down(SPEED_OF_WASD); break;
+                case GLFW_KEY_S: camera = camera.up(SPEED_OF_WASD); break;
+                case GLFW_KEY_A: camera = camera.right(SPEED_OF_WASD); break;
+                case GLFW_KEY_D: camera = camera.left(SPEED_OF_WASD); break;
+            }
+        }
+    };
+
+
 
     @Override
     public GLFWKeyCallback getKeyCallback() { return keyCallback; }
@@ -234,9 +230,17 @@ public class Renderer extends AbstractRenderer{
     private void text() {
         textRenderer.addStr2D(10, 20, "GPU: " + glGetString(GL_RENDERER));
 
-        if (cursorPressed) textRenderer.addStr2D(width - 150,50, "Mouse is pressed");
+        if (mousePressed) textRenderer.addStr2D(width - 150,50, "Mouse is pressed");
     }
 
+    private void printingOGLUParameters() {
+        OGLUtils.printOGLparameters();
+        OGLUtils.printLWJLparameters();
+        OGLUtils.printJAVAparameters();
+        OGLUtils.shaderCheck();
+    }
 
-
+    private void resetCamera() {
+        camera = new Camera().withPosition(new Vec3D(2, 2, 2)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
+    }
 }
