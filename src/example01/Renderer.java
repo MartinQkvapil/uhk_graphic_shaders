@@ -60,12 +60,7 @@ public class Renderer extends AbstractRenderer{
 
         resetCamera();
 
-        projection = new Mat4PerspRH(
-                Math.PI / 3,
-                LwjglWindow.HEIGHT / (float) LwjglWindow.WIDTH,
-                0.1,
-                20
-        );
+        projection = setProjectionPerspective();
 
 
         buffersMain = GridFactory.generateGrid(50,50);
@@ -201,11 +196,17 @@ public class Renderer extends AbstractRenderer{
             switch (key) {
                 case GLFW_KEY_R: // RESET
                     resetCamera();
+                    projection = setProjectionPerspective();
                     break;
                 case GLFW_KEY_W: camera = camera.down(SPEED_OF_WASD); break;
                 case GLFW_KEY_S: camera = camera.up(SPEED_OF_WASD); break;
                 case GLFW_KEY_A: camera = camera.right(SPEED_OF_WASD); break;
                 case GLFW_KEY_D: camera = camera.left(SPEED_OF_WASD); break;
+                case GLFW_KEY_O:
+                    projection = setProjectionOrthogonal();
+                    break;
+                case GLFW_KEY_P:
+                    projection = setProjectionPerspective();
             }
         }
     };
@@ -243,4 +244,13 @@ public class Renderer extends AbstractRenderer{
     private void resetCamera() {
         camera = new Camera().withPosition(new Vec3D(2, 2, 2)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
     }
+
+    private Mat4 setProjectionPerspective() {
+        return new Mat4PerspRH(Math.PI / 3,LwjglWindow.HEIGHT / (float) LwjglWindow.WIDTH,0.1,20);
+    }
+
+    private Mat4 setProjectionOrthogonal() {
+        return new  Mat4OrthoRH(3, 3, 0.1, 20);
+    }
+
 }
