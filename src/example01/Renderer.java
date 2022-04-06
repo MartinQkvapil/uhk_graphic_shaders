@@ -31,15 +31,15 @@ public class Renderer extends AbstractRenderer{
     private OGLTexture2D currentTexture;
 
     // Locations
-    private int viewLocation, projectionLocation;
+    private int viewLocation, projectionLocation, colorLocation;
 
     private Mat4 projection;
-    private OGLTexture2D textureMosaic;
 
     // Window controls
     public static final double SPEED_OF_WASD = 0.05;
 
     private boolean mousePressed = false;
+    private int colorType = 1;
     private int buttonPressed;
     private double oldMx, oldMy;
     private OGLRenderTarget renderTarget;
@@ -59,6 +59,7 @@ public class Renderer extends AbstractRenderer{
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
 
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
+        colorLocation = glGetUniformLocation(shaderProgramMain, "color");
 
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
 
@@ -75,11 +76,6 @@ public class Renderer extends AbstractRenderer{
 
         getTextures();
         currentTexture = textures.get(0);
-        try {
-           textureMosaic = new OGLTexture2D("./bricks.jpg");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         viewer = new OGLTexture2D.Viewer();
         textRenderer = new OGLTextRenderer(LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
@@ -125,6 +121,8 @@ public class Renderer extends AbstractRenderer{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUniformMatrix4fv(viewLocation, false,  camera.getViewMatrix().floatArray());
         glUniformMatrix4fv(projectionLocation, false, projection.floatArray());
+
+        glUniform1f(colorLocation, colorType);
 
         currentTexture = textures.get(0);
         currentTexture.bind(shaderProgramMain, "currentTexture", 0);
@@ -225,10 +223,11 @@ public class Renderer extends AbstractRenderer{
                     break;
                 case GLFW_KEY_P:
                     projection = setProjectionPerspective();
-                case GLFW_KEY_T: // Textures forward
-
+                case GLFW_KEY_T: // color forward
+                    if (colorType < 1) colorType++;
                    break;
-                case GLFW_KEY_Y: // Textures backward
+                case GLFW_KEY_Y: // color backward
+                    if (colorType > 0) colorType--;
                    break;
 
             }

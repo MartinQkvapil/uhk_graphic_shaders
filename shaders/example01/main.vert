@@ -3,6 +3,7 @@ in vec2 inPosition; // input from the vertex buffer
 
 uniform mat4 projection;
 uniform mat4 view;
+uniform float color;
 uniform int type;
 
 const float PI = 3.1415;
