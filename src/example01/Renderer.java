@@ -39,6 +39,7 @@ public class Renderer extends AbstractRenderer{
     public static final double SPEED_OF_WASD = 0.05;
 
     private boolean mousePressed = false;
+    private boolean startToMove = false;
     private int colorType = 0;
     private int objectType = 0;
     private int fillType = 0;
@@ -49,6 +50,9 @@ public class Renderer extends AbstractRenderer{
     private OGLTexture2D.Viewer viewer;
     private int typeLocation;
 
+    // Object movement
+    private float moving = 0f;
+    private float step = 0.01f;
 
     @Override
     public void init() {
@@ -68,6 +72,7 @@ public class Renderer extends AbstractRenderer{
         modelLocation = glGetUniformLocation(shaderProgramMain, "model");
 
 
+
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
 
 
@@ -83,7 +88,7 @@ public class Renderer extends AbstractRenderer{
         buffersMain = GridFactory.generateGrid(50,50);
         buffersPost = GridFactory.generateGrid(2,2);
 
-        renderTarget = new OGLRenderTarget(1024, 1024);
+        renderTarget = new OGLRenderTarget(800, 800);
 
         getTextures();
         currentTexture = textures.get(0);
@@ -145,6 +150,9 @@ public class Renderer extends AbstractRenderer{
 
         glUniform1f(colorLocation, colorType);
         glUniform1f(typeLocation, objectType);
+
+        if (startToMove) moving += step;
+        glUniform1f(timeLocation, moving);
 
         currentTexture = textures.get(textureType);
         currentTexture.bind(shaderProgramMain, "currentTexture", 0);
@@ -221,6 +229,9 @@ public class Renderer extends AbstractRenderer{
                 break;
             case GLFW_KEY_6:
                 // TODO rotation right
+                break;
+            case GLFW_KEY_G:
+                startToMove = !startToMove;
                 break;
             default:
                 System.err.println("Unknown key detected");
