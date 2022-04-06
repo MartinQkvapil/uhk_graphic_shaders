@@ -122,8 +122,6 @@ public class Renderer extends AbstractRenderer{
         renderPostProcessing();
 
         glDisable(GL_DEPTH_TEST);
-      //  viewer.view(textureMosaic, -1, -1, 0.5);
-//        viewer.view(currentTexture, -1, -1, 0,0.5);
         viewer.view(renderTarget.getColorTexture(), -1, -0.5, 0.5);
         viewer.view(renderTarget.getDepthTexture(), -1, 0, 0.5);
         viewer.view(currentTexture, -1, -1, 0.5);
@@ -198,6 +196,13 @@ public class Renderer extends AbstractRenderer{
                 break;
             case GLFW_KEY_E:
                 if (fillType > 0) fillType--;
+                break;
+            case GLFW_KEY_U:
+                if (objectType < 7) objectType++;
+                System.out.println(objectType);
+                break;
+            case GLFW_KEY_I:
+                if (objectType > 0) objectType--;
                 break;
             default:
                 System.err.println("Unknown key detected");
@@ -281,7 +286,7 @@ public class Renderer extends AbstractRenderer{
     private void text() {
         textRenderer.addStr2D(10, 20, "GPU: " + glGetString(GL_RENDERER));
 
-        if (mousePressed) textRenderer.addStr2D(width - 150,50, "Mouse is pressed");
+        if (mousePressed) textRenderer.addStr2D(LwjglWindow.WIDTH - 150,LwjglWindow.HEIGHT - 10, "Mouse is pressed");
     }
 
     private void printingOGLUParameters() {
