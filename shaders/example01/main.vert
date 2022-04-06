@@ -5,6 +5,7 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform float color;
 uniform float type;
+uniform mat4 model;
 uniform float time;
 
 const float PI = 3.1415;
@@ -86,5 +87,5 @@ void main() {
 	}
 
 	vec4 pos4 = vec4(finalPosition, 1.0);
-	gl_Position = projection * view * pos4;
+	gl_Position = projection * view * model * pos4;
 } 

@@ -31,9 +31,9 @@ public class Renderer extends AbstractRenderer{
     private OGLTexture2D currentTexture;
 
     // Locations
-    private int viewLocation, projectionLocation, colorLocation, timeLocation;
+    private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
 
-    private Mat4 projection;
+    private Mat4 projection, model, rotation, translation;
 
     // Window controls
     public static final double SPEED_OF_WASD = 0.05;
@@ -65,6 +65,8 @@ public class Renderer extends AbstractRenderer{
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
         timeLocation = glGetUniformLocation(shaderProgramMain, "time");
         colorLocation = glGetUniformLocation(shaderProgramMain, "color");
+        modelLocation = glGetUniformLocation(shaderProgramMain, "model");
+
 
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
 
@@ -72,6 +74,10 @@ public class Renderer extends AbstractRenderer{
         resetCamera();
 
         projection = setProjectionPerspective();
+        model = new Mat4Identity();
+        rotation = new Mat4Identity();
+        translation = new Mat4Identity();
+
         getTextures();
 
         buffersMain = GridFactory.generateGrid(50,50);
@@ -135,14 +141,14 @@ public class Renderer extends AbstractRenderer{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUniformMatrix4fv(viewLocation, false,  camera.getViewMatrix().floatArray());
         glUniformMatrix4fv(projectionLocation, false, projection.floatArray());
+        glUniformMatrix4fv(modelLocation, false, model.floatArray());
 
         glUniform1f(colorLocation, colorType);
+        glUniform1f(typeLocation, objectType);
 
         currentTexture = textures.get(textureType);
         currentTexture.bind(shaderProgramMain, "currentTexture", 0);
 
-
-        glUniform1f(typeLocation, objectType);
         buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
     }
 
@@ -204,6 +210,18 @@ public class Renderer extends AbstractRenderer{
             case GLFW_KEY_I:
                 if (objectType > 0) objectType--;
                 break;
+            case GLFW_KEY_8:
+                // TODO rotation up
+                break;
+            case GLFW_KEY_2:
+                // TODO rotation down
+                break;
+            case GLFW_KEY_4:
+                // TODO rotation left
+                break;
+            case GLFW_KEY_6:
+                // TODO rotation right
+                break;
             default:
                 System.err.println("Unknown key detected");
                 break;
@@ -217,13 +235,16 @@ public class Renderer extends AbstractRenderer{
                 switch (buttonPressed) {
                     case GLFW_MOUSE_BUTTON_LEFT:
                         System.out.println("Left button to move click.");
-                        camera = camera.addAzimuth(Math.PI / 10 * (oldMx - x) / LwjglWindow.WIDTH);
-                        camera = camera.addZenith(Math.PI / 10 * (oldMy - y) / LwjglWindow.HEIGHT);
+                        camera = camera.addAzimuth(Math.PI / 2 * (oldMx - x) / LwjglWindow.WIDTH);
+                        camera = camera.addZenith(Math.PI / 2 * (oldMy - y) / LwjglWindow.HEIGHT);
                         oldMx = x;
                         oldMy = y;
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        System.out.println("Right button to move click.");
+                        rotation = rotation.mul(new Mat4RotXYZ(0, (oldMy - y) / 300, (oldMx - x) / 300));
+                        model = rotation.mul(translation);
+                        oldMx = x;
+                        oldMy = y;
                         break;
                     default:
                         System.out.println("Cursor not handled - " + buttonPressed);

@@ -5,6 +5,7 @@ import lwjglutils.OGLBuffers;
 public class GridFactory {
 
     /**
+     * List of triplets
      * @param m - pocet vrcholu v radku.
      * @param n - pocet vrcholu ve sloupci.
      */
@@ -41,8 +42,20 @@ public class GridFactory {
         return new OGLBuffers(vb, attributes, ib);
     }
 
+    /**
+     * Belt of triangles
+     * @param m - pocet vrcholu v radku.
+     * @param n - pocet vrcholu ve sloupci.
+     */
+    static void generateStrips(int m, int n) {
+        float[] vb = new float[m * n * 2];
+        int index = 0;
+
+        // TODO
+
+    }
     
 //    public static void main(String[] args) {
-//        generateGrid(4,4);
+//        generateStrips(4,4);
 //    }
 }
