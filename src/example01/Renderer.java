@@ -5,7 +5,9 @@ import org.lwjgl.glfw.*;
 import transforms.*;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -22,8 +24,11 @@ public class Renderer extends AbstractRenderer{
     private int shaderProgramMain, shaderProgramPost;
     // Buffers
     private OGLBuffers buffersMain, buffersPost;
-
+    // Camera
     private Camera camera;
+    // Textures
+    private ArrayList<OGLTexture2D> textures;
+    private OGLTexture2D currentTexture;
 
     // Locations
     private int viewLocation, projectionLocation;
@@ -61,30 +66,41 @@ public class Renderer extends AbstractRenderer{
         resetCamera();
 
         projection = setProjectionPerspective();
-
+        getTextures();
 
         buffersMain = GridFactory.generateGrid(50,50);
         buffersPost = GridFactory.generateGrid(2,2);
 
         renderTarget = new OGLRenderTarget(1024, 1024);
 
-        loadTextures();
-
+        getTextures();
+        currentTexture = textures.get(0);
         try {
-           textureMosaic = new OGLTexture2D("./mosaic.jpg");
+           textureMosaic = new OGLTexture2D("./bricks.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         viewer = new OGLTexture2D.Viewer();
         textRenderer = new OGLTextRenderer(LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
-        textRenderer = new OGLTextRenderer(LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
         textRenderer.setBackgroundColor(new Color(0.0f, 0.0f, 0.0f, 0.0f));
     }
 
 
 
-    private void loadTextures() {
+    private void getTextures() {
+        File[] files = new File("./res/").listFiles();
+        textures = new ArrayList<>();
+
+        for (File file : files) {
+            if (file.isFile()) {
+                try {
+                    textures.add(new OGLTexture2D(file.getName()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -94,10 +110,11 @@ public class Renderer extends AbstractRenderer{
         renderPostProcessing();
 
         glDisable(GL_DEPTH_TEST);
-        viewer.view(textureMosaic, -1, -1, 0.5);
+      //  viewer.view(textureMosaic, -1, -1, 0.5);
+//        viewer.view(currentTexture, -1, -1, 0,0.5);
         viewer.view(renderTarget.getColorTexture(), -1, -0.5, 0.5);
         viewer.view(renderTarget.getDepthTexture(), -1, 0, 0.5);
-
+        viewer.view(currentTexture, -1, -1, 0.5);
         text();
     }
 
@@ -109,7 +126,8 @@ public class Renderer extends AbstractRenderer{
         glUniformMatrix4fv(viewLocation, false,  camera.getViewMatrix().floatArray());
         glUniformMatrix4fv(projectionLocation, false, projection.floatArray());
 
-        textureMosaic.bind(shaderProgramMain, "textureMosaic", 0);
+        currentTexture = textures.get(0);
+        currentTexture.bind(shaderProgramMain, "currentTexture", 0);
 
         glUniform1f(typeLocation, 0f);
         buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
@@ -207,6 +225,12 @@ public class Renderer extends AbstractRenderer{
                     break;
                 case GLFW_KEY_P:
                     projection = setProjectionPerspective();
+                case GLFW_KEY_T: // Textures forward
+
+                   break;
+                case GLFW_KEY_Y: // Textures backward
+                   break;
+
             }
         }
     };
