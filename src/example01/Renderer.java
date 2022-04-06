@@ -40,6 +40,8 @@ public class Renderer extends AbstractRenderer{
 
     private boolean mousePressed = false;
     private int colorType = 1;
+    private int fillType = 0;
+    private int textureType = 0;
     private int buttonPressed;
     private double oldMx, oldMy;
     private OGLRenderTarget renderTarget;
@@ -52,7 +54,8 @@ public class Renderer extends AbstractRenderer{
         printingOGLUParameters();
 
         glClearColor(0.1f, 0.1f, 0.1f, 1f);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        fillPolygon(0);
 
         shaderProgramMain = ShaderUtils.loadProgram("/example01/main");
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
@@ -82,6 +85,13 @@ public class Renderer extends AbstractRenderer{
         textRenderer.setBackgroundColor(new Color(0.0f, 0.0f, 0.0f, 0.0f));
     }
 
+    private void fillPolygon(int type) {
+        switch (type) {
+            case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
+            case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
+            case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+        }
+    }
 
 
     private void getTextures() {
@@ -102,6 +112,9 @@ public class Renderer extends AbstractRenderer{
     @Override
     public void display() {
         glEnable(GL_DEPTH_TEST); // Text renderer closing ZBuffer!
+
+        fillPolygon(fillType);
+
         renderMain();
         renderPostProcessing();
 
@@ -124,7 +137,7 @@ public class Renderer extends AbstractRenderer{
 
         glUniform1f(colorLocation, colorType);
 
-        currentTexture = textures.get(0);
+        currentTexture = textures.get(textureType);
         currentTexture.bind(shaderProgramMain, "currentTexture", 0);
 
         glUniform1f(typeLocation, 0f);
@@ -223,12 +236,11 @@ public class Renderer extends AbstractRenderer{
                     break;
                 case GLFW_KEY_P:
                     projection = setProjectionPerspective();
-                case GLFW_KEY_T: // color forward
-                    if (colorType < 1) colorType++;
-                   break;
-                case GLFW_KEY_Y: // color backward
-                    if (colorType > 0) colorType--;
-                   break;
+                case GLFW_KEY_T: if (colorType < 1) colorType++; break;
+                case GLFW_KEY_Y: if (colorType > 0) colorType--; break;
+                case GLFW_KEY_K: if (textureType < 10) textureType++; break;
+                case GLFW_KEY_L: if (textureType > 0) textureType--; break;
+
 
             }
         }
