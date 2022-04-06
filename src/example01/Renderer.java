@@ -40,11 +40,15 @@ public class Renderer extends AbstractRenderer{
 
     private boolean mousePressed = false;
     private boolean startToMove = false;
+    private boolean showHelp = false;
+
     private int colorType = 0;
     private int objectType = 0;
     private int fillType = 0;
     private int textureType = 0;
     private int buttonPressed;
+
+    private int currentKey;
     private double oldMx, oldMy;
     private OGLRenderTarget renderTarget;
     private OGLTexture2D.Viewer viewer;
@@ -233,6 +237,10 @@ public class Renderer extends AbstractRenderer{
             case GLFW_KEY_G:
                 startToMove = !startToMove;
                 break;
+            case GLFW_KEY_H:
+                currentKey = GLFW_KEY_H;
+                showHelp = !showHelp;
+                break;
             default:
                 System.err.println("Unknown key detected");
                 break;
@@ -317,8 +325,26 @@ public class Renderer extends AbstractRenderer{
 
     private void text() {
         textRenderer.addStr2D(10, 20, "GPU: " + glGetString(GL_RENDERER));
+        textRenderer.addStr2D(10, 40, "PUSH \"H\" FOR SHOW HELP");
 
-        if (mousePressed) textRenderer.addStr2D(LwjglWindow.WIDTH - 150,LwjglWindow.HEIGHT - 10, "Mouse is pressed");
+        if (mousePressed) {
+            textRenderer.addStr2D(LwjglWindow.WIDTH - 150,LwjglWindow.HEIGHT - 10, "Mouse is pressed");
+        }
+
+        if (currentKey == GLFW_KEY_H) {
+            int indexW = LwjglWindow.WIDTH - 180;
+            if (showHelp) {
+                textRenderer.addStr2D(LwjglWindow.WIDTH - 200, 20, "Help:");
+                textRenderer.addStr2D(indexW, 40, "Q & E - fill / line / point");
+                textRenderer.addStr2D(indexW, 60, "U & I - Change objects");
+                textRenderer.addStr2D(indexW, 80, "U & I - Change objects");
+                textRenderer.addStr2D(indexW, 100, "U & I - Change objects");
+                textRenderer.addStr2D(indexW, 120, "U & I - Change objects");
+                textRenderer.addStr2D(indexW, 140, "U & I - Change objects");
+                textRenderer.addStr2D(indexW, 160, "U & I - Change objects");
+                textRenderer.addStr2D(indexW, 180, "M - show multiple objects");
+            }
+        }
     }
 
     private void printingOGLUParameters() {
