@@ -39,7 +39,7 @@ public class Renderer extends AbstractRenderer{
     public static final double SPEED_OF_WASD = 0.05;
 
     private boolean mousePressed = false;
-    private int colorType = 1;
+    private int colorType = 0;
     private int objectType = 0;
     private int fillType = 0;
     private int textureType = 0;

@@ -9,6 +9,8 @@ uniform float time;
 
 const float PI = 3.1415;
 
+out vec2 coord;
+
 float getSimple(vec2 vec) {
 	return sin(vec.y * PI * 2);
 }
@@ -61,7 +63,7 @@ vec3 getCylindric01(vec2 vec){
 // TODO add one more cylindric;
 
 void main() {
-	//	texCoord = inPosition;
+	coord = inPosition;
 
 	// grid je <0;1> - chci <-1;1>
 	vec2 position = inPosition * 2 - 1;

@@ -5,6 +5,7 @@ out vec4 outColor; // output from the fragment shader
 uniform float color;
 uniform sampler2D currentTexture;
 
+
 void main() {
 	vec4 textureColor = texture(currentTexture, coord);
 
