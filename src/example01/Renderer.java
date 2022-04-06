@@ -31,7 +31,7 @@ public class Renderer extends AbstractRenderer{
     private OGLTexture2D currentTexture;
 
     // Locations
-    private int viewLocation, projectionLocation, colorLocation;
+    private int viewLocation, projectionLocation, colorLocation, timeLocation;
 
     private Mat4 projection;
 
@@ -40,6 +40,7 @@ public class Renderer extends AbstractRenderer{
 
     private boolean mousePressed = false;
     private int colorType = 1;
+    private int objectType = 0;
     private int fillType = 0;
     private int textureType = 0;
     private int buttonPressed;
@@ -62,6 +63,7 @@ public class Renderer extends AbstractRenderer{
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
 
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
+        timeLocation = glGetUniformLocation(shaderProgramMain, "time");
         colorLocation = glGetUniformLocation(shaderProgramMain, "color");
 
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
@@ -113,9 +115,10 @@ public class Renderer extends AbstractRenderer{
     public void display() {
         glEnable(GL_DEPTH_TEST); // Text renderer closing ZBuffer!
 
-        fillPolygon(fillType);
+       fillPolygon(fillType);
 
         renderMain();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         renderPostProcessing();
 
         glDisable(GL_DEPTH_TEST);
@@ -140,10 +143,8 @@ public class Renderer extends AbstractRenderer{
         currentTexture = textures.get(textureType);
         currentTexture.bind(shaderProgramMain, "currentTexture", 0);
 
-        glUniform1f(typeLocation, 0f);
-        buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
 
-        glUniform1f(typeLocation, 1f);
+        glUniform1f(typeLocation, objectType);
         buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
     }
 
@@ -157,6 +158,52 @@ public class Renderer extends AbstractRenderer{
         buffersPost.draw(GL_TRIANGLES, shaderProgramPost);
     }
 
+    private void clickKey(int key) {
+        switch (key) {
+            case GLFW_KEY_R: // RESET
+                resetCamera();
+                projection = setProjectionPerspective();
+                break;
+            case GLFW_KEY_W:
+                camera = camera.down(SPEED_OF_WASD);
+                break;
+            case GLFW_KEY_S:
+                camera = camera.up(SPEED_OF_WASD);
+                break;
+            case GLFW_KEY_A:
+                camera = camera.right(SPEED_OF_WASD);
+                break;
+            case GLFW_KEY_D:
+                camera = camera.left(SPEED_OF_WASD);
+                break;
+            case GLFW_KEY_O:
+                projection = setProjectionOrthogonal();
+                break;
+            case GLFW_KEY_P:
+                projection = setProjectionPerspective();
+            case GLFW_KEY_T:
+                if (colorType < 1) colorType++;
+                break;
+            case GLFW_KEY_Y:
+                if (colorType > 0) colorType--;
+                break;
+            case GLFW_KEY_K:
+                if (textureType < 10) textureType++;
+                break;
+            case GLFW_KEY_L:
+                if (textureType > 0) textureType--;
+                break;
+            case GLFW_KEY_Q:
+                if (fillType < 2) fillType++;
+                break;
+            case GLFW_KEY_E:
+                if (fillType > 0) fillType--;
+                break;
+            default:
+                System.err.println("Unknown key detected");
+                break;
+        }
+    }
 
     private final GLFWCursorPosCallback cursorPosCallback = new GLFWCursorPosCallback() {
         @Override
@@ -221,47 +268,15 @@ public class Renderer extends AbstractRenderer{
     private final GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
         @Override
         public void invoke(long window, int key, int scancode, int action, int mods) {
-
-            switch (key) {
-                case GLFW_KEY_R: // RESET
-                    resetCamera();
-                    projection = setProjectionPerspective();
-                    break;
-                case GLFW_KEY_W: camera = camera.down(SPEED_OF_WASD); break;
-                case GLFW_KEY_S: camera = camera.up(SPEED_OF_WASD); break;
-                case GLFW_KEY_A: camera = camera.right(SPEED_OF_WASD); break;
-                case GLFW_KEY_D: camera = camera.left(SPEED_OF_WASD); break;
-                case GLFW_KEY_O:
-                    projection = setProjectionOrthogonal();
-                    break;
-                case GLFW_KEY_P:
-                    projection = setProjectionPerspective();
-                case GLFW_KEY_T: if (colorType < 1) colorType++; break;
-                case GLFW_KEY_Y: if (colorType > 0) colorType--; break;
-                case GLFW_KEY_K: if (textureType < 10) textureType++; break;
-                case GLFW_KEY_L: if (textureType > 0) textureType--; break;
-
-
+            if (GLFW_RELEASE == action) {
+                clickKey(key);
             }
         }
     };
 
 
 
-    @Override
-    public GLFWKeyCallback getKeyCallback() { return keyCallback; }
 
-    @Override
-    public GLFWCursorPosCallback getCursorCallback() { return cursorPosCallback; }
-
-    @Override
-    public GLFWMouseButtonCallback getMouseCallback() { return mouseButtonCallback; }
-
-    @Override
-    public GLFWScrollCallback getScrollCallback() { return scrollCallback; }
-
-    @Override
-    public GLFWWindowSizeCallback getWsCallback() { return wsCallback; }
 
     private void text() {
         textRenderer.addStr2D(10, 20, "GPU: " + glGetString(GL_RENDERER));
@@ -288,4 +303,19 @@ public class Renderer extends AbstractRenderer{
         return new  Mat4OrthoRH(3, 3, 0.1, 20);
     }
 
+
+    @Override
+    public GLFWKeyCallback getKeyCallback() { return keyCallback; }
+
+    @Override
+    public GLFWCursorPosCallback getCursorCallback() { return cursorPosCallback; }
+
+    @Override
+    public GLFWMouseButtonCallback getMouseCallback() { return mouseButtonCallback; }
+
+    @Override
+    public GLFWScrollCallback getScrollCallback() { return scrollCallback; }
+
+    @Override
+    public GLFWWindowSizeCallback getWsCallback() { return wsCallback; }
 }
