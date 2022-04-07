@@ -19,7 +19,7 @@ const float PI = 3.1415;
 const float DEVIATION = 0.01;
 
 out vec2 coord;
-
+out vec4 objPosition;
 
 vec3 getNormal(vec3 u, vec3 v) {
 	return cross(u, v);
