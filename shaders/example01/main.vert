@@ -10,7 +10,7 @@ uniform float type;
 uniform mat4 model;
 uniform float time;
 
-out vec3 normal;
+
 
 uniform vec3 light;
 
@@ -20,6 +20,7 @@ const float DEVIATION = 0.01;
 
 out vec2 coord;
 out vec4 objectPosition;
+out vec3 normal;
 
 vec3 getNormal(vec3 u, vec3 v) {
 	return cross(u, v);

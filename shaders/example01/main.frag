@@ -1,6 +1,7 @@
 #version 150
 in vec2 coord;
 in vec4 objectPosition;
+in vec3 normal;
 
 out vec4 outColor; // output from the fragment shader
 
@@ -15,11 +16,10 @@ void main() {
 	if(color == 1) outColor = vec4(1f, 0f, 1f, 1f); // basic color
 	if(color == 2) outColor = vec4(coord, 0f, 1f); // #colorToTexture
 	if(color == 3) outColor = objectPosition; // #objPosition
-	if(color == 4) outColor = vec4(1.0, 1.0, 1.0, 1.0); // normal xyz
+	if(color == 4) outColor = vec4(normalize(normal),1f); // #normal // always normalize normal
 	if(color == 5) outColor = vec4(1.0, 1.0, 1.0, 1.0); // mapping texturer rgba
 	if(color == 6) outColor = vec4(1.0, 0.0, 1.0, 1.0);
 	if(color == 7) outColor = vec4(1.0, 1.0, 1.0, 1.0); // light + texture
 
 
-	// normalu je třeba vždy normalizovat
-} 
+}
