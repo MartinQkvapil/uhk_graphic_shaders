@@ -43,6 +43,7 @@ public class Renderer extends AbstractRenderer{
     private boolean startToMove = false;
     private boolean showHelp = false;
     private boolean showMultipleObjects = false;
+    private boolean showPostProcessing = false; // N
 
     private int colorType = 0;
     private int objectType = 0;
@@ -99,13 +100,13 @@ public class Renderer extends AbstractRenderer{
         buffersMain = GridFactory.generateGrid(50,50);
         buffersPost = GridFactory.generateGrid(2,2);
 
-        renderTarget = new OGLRenderTarget(800, 800);
+        renderTarget = new OGLRenderTarget(1024, 1024);
 
         getTextures();
         currentTexture = textures.get(0);
 
-        viewer = new OGLTexture2D.Viewer();
-        textRenderer = new OGLTextRenderer(LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
+        viewer = new OGLTexture2D.Viewer(); // Control
+        textRenderer = new OGLTextRenderer(LwjglWindow.WIDTH, LwjglWindow.HEIGHT); // Text writing
         textRenderer.setBackgroundColor(new Color(0.0f, 0.0f, 0.0f, 0.0f));
     }
 
@@ -136,25 +137,26 @@ public class Renderer extends AbstractRenderer{
     }
 
     @Override
-    public void display() {
-        glEnable(GL_DEPTH_TEST); // Text renderer closing ZBuffer!
+    public void display() { // Render cca every 17ms
+        glEnable(GL_DEPTH_TEST); // Text renderer closing ZBuffer!!!
 
-       fillPolygon(fillType);
+        fillPolygon(fillType);
 
         renderMain();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
         renderPostProcessing();
 
         glDisable(GL_DEPTH_TEST);
-        viewer.view(renderTarget.getColorTexture(), -1, -0.5, 0.5);
-        viewer.view(renderTarget.getDepthTexture(), -1, 0, 0.5);
-        viewer.view(currentTexture, -1, -1, 0.5);
+        viewer.view(renderTarget.getColorTexture(), -1, -0.5, 0.5); // Depth texture
+        viewer.view(renderTarget.getDepthTexture(), -1, 0, 0.5); // Color texture from first
+        viewer.view(currentTexture, -1, -1, 0.5); // Texture
         text();
     }
 
     private void renderMain() {
         glUseProgram(shaderProgramMain);
-        renderTarget.bind();
+        renderTarget.bind(); // render to texture
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUniformMatrix4fv(viewLocation, false,  camera.getViewMatrix().floatArray());
@@ -181,7 +183,7 @@ public class Renderer extends AbstractRenderer{
 
     private void renderPostProcessing() {
         glUseProgram(shaderProgramPost);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // render to window
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0,0, LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
 
@@ -212,8 +214,9 @@ public class Renderer extends AbstractRenderer{
                 break;
             case GLFW_KEY_P:
                 projection = setProjectionPerspective();
+                break;
             case GLFW_KEY_T:
-                if (colorType < 1) colorType++;
+                if (colorType < 6) colorType++;
                 break;
             case GLFW_KEY_Y:
                 if (colorType > 0) colorType--;
@@ -259,6 +262,9 @@ public class Renderer extends AbstractRenderer{
             case GLFW_KEY_M:
                 showMultipleObjects = !showMultipleObjects;
                 break;
+            case GLFW_KEY_N:
+                showPostProcessing = !showPostProcessing;
+                break;
             default:
                 System.err.println("Unknown key detected");
                 break;
@@ -271,7 +277,6 @@ public class Renderer extends AbstractRenderer{
             if (mousePressed) {
                 switch (buttonPressed) {
                     case GLFW_MOUSE_BUTTON_LEFT:
-                        System.out.println("Left button to move click.");
                         camera = camera.addAzimuth(Math.PI / 2 * (oldMx - x) / LwjglWindow.WIDTH);
                         camera = camera.addZenith(Math.PI / 2 * (oldMy - y) / LwjglWindow.HEIGHT);
                         oldMx = x;
@@ -284,7 +289,7 @@ public class Renderer extends AbstractRenderer{
                         oldMy = y;
                         break;
                     default:
-                        System.out.println("Cursor not handled - " + buttonPressed);
+                        System.err.println("Cursor not handled - " + buttonPressed);
                         break;
                 }
             }
@@ -338,9 +343,6 @@ public class Renderer extends AbstractRenderer{
     };
 
 
-
-
-
     private void text() {
         textRenderer.addStr2D(10, 20, "GPU: " + glGetString(GL_RENDERER));
         textRenderer.addStr2D(10, 40, "PUSH \"H\" FOR SHOW HELP");
@@ -354,13 +356,14 @@ public class Renderer extends AbstractRenderer{
             if (showHelp) {
                 textRenderer.addStr2D(LwjglWindow.WIDTH - 200, 20, "Help:");
                 textRenderer.addStr2D(indexW, 40, "Q & E - fill / line / point");
-                textRenderer.addStr2D(indexW, 60, "U & I - Change objects");
-                textRenderer.addStr2D(indexW, 80, "U & I - Change objects");
-                textRenderer.addStr2D(indexW, 100, "U & I - Change objects");
-                textRenderer.addStr2D(indexW, 120, "U & I - Change objects");
-                textRenderer.addStr2D(indexW, 140, "U & I - Change objects");
+                textRenderer.addStr2D(indexW, 60, "G - animate object");
+                textRenderer.addStr2D(indexW, 80, "O - orthogonal");
+                textRenderer.addStr2D(indexW, 100, "P - perspective");
+                textRenderer.addStr2D(indexW, 120, "T & Y - Change color");
+                textRenderer.addStr2D(indexW, 140, "K & L - Change textures");
                 textRenderer.addStr2D(indexW, 160, "U & I - Change objects");
-                textRenderer.addStr2D(indexW, 180, "M - show multiple objects");
+                textRenderer.addStr2D(indexW, 180, "N - Show (postprocessing) gray");
+                textRenderer.addStr2D(indexW, 200, "M - show multiple objects");
             }
         }
     }
@@ -373,11 +376,11 @@ public class Renderer extends AbstractRenderer{
     }
 
     private void resetCamera() {
-        camera = new Camera().withPosition(new Vec3D(2, 2, 2)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
+        camera = new Camera().withPosition(new Vec3D(3, 3, 2)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
     }
 
     private Mat4 setProjectionPerspective() {
-        return new Mat4PerspRH(Math.PI / 3,LwjglWindow.HEIGHT / (float) LwjglWindow.WIDTH,0.1,20);
+        return new Mat4PerspRH(Math.PI / 3,LwjglWindow.HEIGHT / (float) LwjglWindow.WIDTH,0.1,15);
     }
 
     private Mat4 setProjectionOrthogonal() {

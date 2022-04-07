@@ -59,9 +59,9 @@ vec3 getSpherical02(vec2 position) {
 	float ze = position.y * PI / 2.0;
 	float r = 1.0;
 
-	float x = r * sin(ze) * cos(az);
-	float y = r * sin(ze) * sin(az);
-	float z = r * cos(ze);
+	float x = r * cos(az) * cos(ze);
+	float y = r * sin(az) * cos(ze);
+	float z = r * sin(ze);
 	return vec3(x, y, z);
 }
 

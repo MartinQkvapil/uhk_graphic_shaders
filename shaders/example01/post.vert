@@ -1,10 +1,10 @@
 #version 150
 in vec2 inPosition; // input from the vertex buffer
 
-out vec2 textCoord;
+out vec2 coord;
 
 void main() {
-	textCoord = inPosition;
+	coord = inPosition;
 
 	// grid je <0, 1> - chci <-1;1>
 	vec2 position = inPosition * 2 - 1;
