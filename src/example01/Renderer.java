@@ -32,6 +32,7 @@ public class Renderer extends AbstractRenderer{
 
     // Locations
     private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
+    private int lightLocation;
 
     private Mat4 projection, model, rotation, translation;
 
@@ -41,6 +42,7 @@ public class Renderer extends AbstractRenderer{
     private boolean mousePressed = false;
     private boolean startToMove = false;
     private boolean showHelp = false;
+    private boolean showMultipleObjects = false;
 
     private int colorType = 0;
     private int objectType = 0;
@@ -54,9 +56,12 @@ public class Renderer extends AbstractRenderer{
     private OGLTexture2D.Viewer viewer;
     private int typeLocation;
 
+    // Light
+    private Vec3D lightPoint;
+
     // Object movement
     private float moving = 0f;
-    private float step = 0.01f;
+
 
     @Override
     public void init() {
@@ -75,13 +80,15 @@ public class Renderer extends AbstractRenderer{
         colorLocation = glGetUniformLocation(shaderProgramMain, "color");
         modelLocation = glGetUniformLocation(shaderProgramMain, "model");
 
+        // Light
+        lightLocation = glGetUniformLocation(shaderProgramMain, "light");
 
 
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
 
 
         resetCamera();
-
+        lightPoint = new Vec3D(0,1,2);
         projection = setProjectionPerspective();
         model = new Mat4Identity();
         rotation = new Mat4Identity();
@@ -115,12 +122,14 @@ public class Renderer extends AbstractRenderer{
         File[] files = new File("./res/").listFiles();
         textures = new ArrayList<>();
 
-        for (File file : files) {
-            if (file.isFile()) {
-                try {
-                    textures.add(new OGLTexture2D(file.getName()));
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    try {
+                        textures.add(new OGLTexture2D(file.getName()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -155,6 +164,7 @@ public class Renderer extends AbstractRenderer{
         glUniform1f(colorLocation, colorType);
         glUniform1f(typeLocation, objectType);
 
+        float step = 0.01f;
         if (startToMove) moving += step;
         glUniform1f(timeLocation, moving);
 
@@ -162,6 +172,11 @@ public class Renderer extends AbstractRenderer{
         currentTexture.bind(shaderProgramMain, "currentTexture", 0);
 
         buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
+
+        if(showMultipleObjects) {
+            glUniform1f(typeLocation, 1f);
+            buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
+        }
     }
 
     private void renderPostProcessing() {
@@ -240,6 +255,9 @@ public class Renderer extends AbstractRenderer{
             case GLFW_KEY_H:
                 currentKey = GLFW_KEY_H;
                 showHelp = !showHelp;
+                break;
+            case GLFW_KEY_M:
+                showMultipleObjects = !showMultipleObjects;
                 break;
             default:
                 System.err.println("Unknown key detected");

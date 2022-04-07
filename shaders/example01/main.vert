@@ -1,4 +1,6 @@
 #version 150
+// Normalize objects: https://stackoverflow.com/questions/4309720/how-can-i-find-the-normals-for-each-vertex-of-an-object-so-that-i-can-apply-smoo
+
 in vec2 inPosition; // input from the vertex buffer
 
 uniform mat4 projection;
@@ -8,9 +10,21 @@ uniform float type;
 uniform mat4 model;
 uniform float time;
 
+out vec3 normal;
+
+uniform vec3 light;
+
+
 const float PI = 3.1415;
+const float DEVIATION = 0.01;
 
 out vec2 coord;
+
+
+vec3 getNormal(vec3 u, vec3 v) {
+	return cross(u, v);
+}
+
 
 float getSimple(vec2 vec) {
 	return sin(vec.y * PI * 2);
@@ -66,26 +80,46 @@ vec3 getCylindric01(vec2 vec){
 void main() {
 	coord = inPosition;
 
-	// grid je <0;1> - chci <-1;1>
+	// grid je <0;1> - chci <-1;1> Position changed;
 	vec2 position = inPosition * 2 - 1;
 
-	vec3 finalPosition;
-	if (type == 0) {
-		finalPosition = getKartez01(position);
-	} else if (type == 1) {
-		finalPosition = getKartez02(position);
-	} else if (type == 2) {
-		finalPosition = getSpherical01(position);
-	} else if (type == 3) {
-		finalPosition = getSpherical02(position);
-	} else if (type == 4) {
-		finalPosition = getCylindric01(position);
-	} else if (type == 5) {
-		finalPosition = getCylindric01(position);
-	} else {
-		finalPosition = vec3(position, getSimple(position));
-	}
+	vec3 objPosition;
 
-	vec4 pos4 = vec4(finalPosition, 1.0);
+	vec3 u, v;
+	vec3 objNormal;
+
+
+	if (type == 0) {
+		objPosition = getKartez01(position);
+		// Calculate kartez normal
+		u = getKartez01(position + vec2(DEVIATION, 0)) - getKartez01(position - vec2(DEVIATION, 0));
+		v = getKartez01(position + vec2(0, DEVIATION)) - getKartez01(position - vec2(0, DEVIATION));
+	} else if (type == 1) {
+		objPosition = getKartez02(position);
+		u = getKartez02(position + vec2(DEVIATION, 0)) - getKartez02(position - vec2(DEVIATION, 0));
+		v = getKartez02(position + vec2(0, DEVIATION)) - getKartez02(position - vec2(0, DEVIATION));
+	} else if (type == 2) {
+		objPosition = getSpherical01(position);
+		u = getSpherical01(position + vec2(DEVIATION, 0)) - getSpherical01(position - vec2(DEVIATION, 0));
+		v = getSpherical01(position + vec2(0, DEVIATION)) - getSpherical01(position - vec2(0, DEVIATION));
+	} else if (type == 3) {
+		objPosition = getSpherical02(position);
+		u = getSpherical02(position + vec2(DEVIATION, 0)) - getSpherical02(position - vec2(DEVIATION, 0));
+		v = getSpherical02(position + vec2(0, DEVIATION)) - getSpherical02(position - vec2(0, DEVIATION));
+	} else if (type == 4) {
+		objPosition = getCylindric01(position);
+		u = getCylindric01(position + vec2(DEVIATION, 0)) - getCylindric01(position - vec2(DEVIATION, 0));
+		v = getCylindric01(position + vec2(0, DEVIATION)) - getCylindric01(position - vec2(0, DEVIATION));
+	} else if (type == 5) {
+		objPosition = getCylindric01(position);
+		u = getCylindric01(position + vec2(DEVIATION, 0)) - getCylindric01(position - vec2(DEVIATION, 0));
+		v = getCylindric01(position + vec2(0, DEVIATION)) - getCylindric01(position - vec2(0, DEVIATION));
+	} else {
+		objPosition = vec3(position, getSimple(position));
+	}
+	// Transformation normal to other vectors - PG3_14 s14 #normalTransformation
+	normal = transpose(inverse(mat3(model))) * getNormal(u, v);
+
+	vec4 pos4 = vec4(objPosition, 1.0);
 	gl_Position = projection * view * model * pos4;
 } 
