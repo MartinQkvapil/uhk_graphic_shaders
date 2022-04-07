@@ -33,6 +33,7 @@ public class Renderer extends AbstractRenderer{
     // Locations
     private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
     private int lightLocation;
+    private int filterLocation;
 
     private Mat4 projection, model, rotation, translation;
 
@@ -45,6 +46,7 @@ public class Renderer extends AbstractRenderer{
     private boolean showMultipleObjects = false;
     private boolean showPostProcessing = false; // N
 
+    private int showFilter = 1;
     private int colorType = 0;
     private int objectType = 0;
     private int fillType = 0;
@@ -85,7 +87,9 @@ public class Renderer extends AbstractRenderer{
         lightLocation = glGetUniformLocation(shaderProgramMain, "light");
 
 
+
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
+        filterLocation = glGetUniformLocation(shaderProgramPost, "showFilter");
 
 
         resetCamera();
@@ -187,6 +191,8 @@ public class Renderer extends AbstractRenderer{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0,0, LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
 
+        glUniform1f(filterLocation, showFilter);
+
         renderTarget.getColorTexture().bind(shaderProgramPost, "textureRendered", 0);
         buffersPost.draw(GL_TRIANGLES, shaderProgramPost);
     }
@@ -263,7 +269,7 @@ public class Renderer extends AbstractRenderer{
                 showMultipleObjects = !showMultipleObjects;
                 break;
             case GLFW_KEY_N:
-                showPostProcessing = !showPostProcessing;
+                showFilter ^= 1;
                 break;
             default:
                 System.err.println("Unknown key detected");
