@@ -54,7 +54,7 @@ vec3 getSpherical01(vec2 vec) { // From exercise
 vec3 getSpericalCircle(vec2 position, float radius) {
 	float az = position.x * PI; // <-1;1> -> <-PI;PI>
 	float ze = position.y * PI / 2.0;
-	float r = 1.0;
+	float r = 1.0 * radius;
 
 	float x = r * cos(az) * cos(ze);
 	float y = r * sin(az) * cos(ze);
@@ -75,14 +75,16 @@ vec3 getCylindric01(vec2 vec){
 
 void main() {
 	coord = inPosition;
-
 	// grid je <0;1> - chci <-1;1> Position changed;
 	vec2 position = inPosition * 2 - 1;
-
 	vec3 lastPosition;
-
 	vec3 u, v;
 	vec3 objNormal;
+
+	// SUN
+	if (type == 666) {
+		lastPosition = getSpericalCircle(position, 0.4);
+	}
 
 	// OBJECTS
 	if (type == 0) {
@@ -95,10 +97,10 @@ void main() {
 		u = getKartez02(position + vec2(DEVIATION, 0)) - getKartez02(position - vec2(DEVIATION, 0));
 		v = getKartez02(position + vec2(0, DEVIATION)) - getKartez02(position - vec2(0, DEVIATION));
 	} else if (type == 2) {
-//		lastPosition = getSpericalCircle(position);
-//		float radius = 1f;
-//		u = getSpericalCircle(position + vec2(DEVIATION, 0), radius) - getSpericalCircle(position - vec2(DEVIATION, 0), radius);
-//		v = getSpericalCircle(position + vec2(0, DEVIATION), radius) - getSpericalCircle(position - vec2(0, DEVIATION), radius);
+		float radius = 1.0;
+		lastPosition = getSpericalCircle(position, radius);
+		u = getSpericalCircle(position + vec2(DEVIATION, 0), radius) - getSpericalCircle(position - vec2(DEVIATION, 0), radius);
+		v = getSpericalCircle(position + vec2(0, DEVIATION), radius) - getSpericalCircle(position - vec2(0, DEVIATION), radius);
 	} else if (type == 3) {
 		lastPosition = getSpherical01(position);
 		u = getSpherical01(position + vec2(DEVIATION, 0)) - getSpherical01(position - vec2(DEVIATION, 0));
@@ -115,10 +117,6 @@ void main() {
 		lastPosition = vec3(position, getSimple(position));
 	}
 
-	// SUN
-	if (type == 666) {
-		lastPosition = getSpericalCircle(position, 0.5);
-	}
 
 	// Transformation normal to other vectors - PG3_14 s14 #normalTransformation
 	normal = transpose(inverse(mat3(model))) * getNormal(u, v);
