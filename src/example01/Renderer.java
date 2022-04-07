@@ -44,7 +44,7 @@ public class Renderer extends AbstractRenderer{
     private boolean startToMove = false;
     private boolean showHelp = false;
     private boolean showMultipleObjects = false;
-    private boolean showPostProcessing = false; // N
+    private boolean showTrianglesStrips = false; // N
 
     private int showFilter = 1;
     private int colorType = 0;
@@ -99,11 +99,7 @@ public class Renderer extends AbstractRenderer{
         rotation = new Mat4Identity();
         translation = new Mat4Identity();
 
-        getTextures();
-
-        buffersMain = GridFactory.generateGrid(50,50);
-        buffersPost = GridFactory.generateGrid(2,2);
-
+        generateGridOrTriangleStrip();
         renderTarget = new OGLRenderTarget(1024, 1024);
 
         getTextures();
@@ -177,11 +173,12 @@ public class Renderer extends AbstractRenderer{
         currentTexture = textures.get(textureType);
         currentTexture.bind(shaderProgramMain, "currentTexture", 0);
 
-        buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
+        draw(buffersMain, shaderProgramMain);
+
 
         if(showMultipleObjects) {
             glUniform1f(typeLocation, 1f);
-            buffersMain.draw(GL_TRIANGLES, shaderProgramMain);
+            draw(buffersMain, shaderProgramMain);
         }
     }
 
@@ -194,7 +191,8 @@ public class Renderer extends AbstractRenderer{
         glUniform1f(filterLocation, showFilter);
 
         renderTarget.getColorTexture().bind(shaderProgramPost, "textureRendered", 0);
-        buffersPost.draw(GL_TRIANGLES, shaderProgramPost);
+
+        draw(buffersPost, shaderProgramMain);
     }
 
     private void clickKey(int key) {
@@ -270,6 +268,10 @@ public class Renderer extends AbstractRenderer{
                 break;
             case GLFW_KEY_N:
                 showFilter ^= 1;
+                break;
+            case GLFW_KEY_F:
+                showTrianglesStrips = !showTrianglesStrips;
+                generateGridOrTriangleStrip();
                 break;
             default:
                 System.err.println("Unknown key detected");
@@ -393,6 +395,23 @@ public class Renderer extends AbstractRenderer{
         return new  Mat4OrthoRH(3, 3, 0.1, 20);
     }
 
+    private void draw(OGLBuffers buffer, int shaderProgram) {
+        if (!showTrianglesStrips) {
+            buffer.draw(GL_TRIANGLES, shaderProgram);
+        } else {
+            buffer.draw(GL_TRIANGLE_STRIP, shaderProgram);
+        }
+    }
+
+    private void generateGridOrTriangleStrip() {
+        if (!showTrianglesStrips) {
+            buffersMain = GridFactory.generateGrid(50, 50);
+            buffersPost = GridFactory.generateGrid(2, 2);
+        } else {
+            buffersMain = GridFactory.generateTriangleStrips(50, 50);
+            buffersPost = GridFactory.generateTriangleStrips(2,2);
+        }
+    }
 
     @Override
     public GLFWKeyCallback getKeyCallback() { return keyCallback; }

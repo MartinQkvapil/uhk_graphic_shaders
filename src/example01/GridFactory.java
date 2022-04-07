@@ -85,7 +85,7 @@ public class GridFactory {
         return new OGLBuffers(vb, attributes, ib);
     }
     
-    public static void main(String[] args) {
-        generateTriangleStrips(10,10);
-    }
+//    public static void main(String[] args) {
+//        generateTriangleStrips(10,10);
+//    }
 }
