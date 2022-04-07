@@ -16,7 +16,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class LwjglWindow {
 
-	public static int WIDTH = 800;
+	public static int WIDTH = 1200;
     public static int HEIGHT = 800;
 
     // The window handle

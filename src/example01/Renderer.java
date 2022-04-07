@@ -39,12 +39,15 @@ public class Renderer extends AbstractRenderer{
 
     // Window controls
     public static final double SPEED_OF_WASD = 0.05;
+    public static final float SUN = 666;
 
     private boolean mousePressed = false;
     private boolean startToMove = false;
     private boolean showHelp = false;
     private boolean showMultipleObjects = false;
     private boolean showTrianglesStrips = false; // N
+    private boolean showLight = false; // N
+    private boolean lightToMove = false; // N
 
     private int showFilter = 1;
     private int colorType = 0;
@@ -60,10 +63,11 @@ public class Renderer extends AbstractRenderer{
     private int typeLocation;
 
     // Light
-    private Vec3D lightPoint;
+    private Vec3D lightPointPosition = new Vec3D(0, 4, 0);
 
     // Object movement
     private float moving = 0f;
+    private float lightMoving = 0f;
 
 
     @Override
@@ -74,10 +78,10 @@ public class Renderer extends AbstractRenderer{
 
         fillPolygon(0);
 
+        // Shader main program
         shaderProgramMain = ShaderUtils.loadProgram("/example01/main");
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
-
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
         timeLocation = glGetUniformLocation(shaderProgramMain, "time");
         colorLocation = glGetUniformLocation(shaderProgramMain, "color");
@@ -86,14 +90,12 @@ public class Renderer extends AbstractRenderer{
         // Light
         lightLocation = glGetUniformLocation(shaderProgramMain, "light");
 
-
-
+        // Postprocessing
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
         filterLocation = glGetUniformLocation(shaderProgramPost, "showFilter");
 
 
         resetCamera();
-        lightPoint = new Vec3D(0,1,2);
         projection = setProjectionPerspective();
         model = new Mat4Identity();
         rotation = new Mat4Identity();
@@ -117,7 +119,6 @@ public class Renderer extends AbstractRenderer{
             case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
         }
     }
-
 
     private void getTextures() {
         File[] files = new File("./res/").listFiles();
@@ -175,9 +176,23 @@ public class Renderer extends AbstractRenderer{
 
         draw(buffersMain, shaderProgramMain);
 
-
         if(showMultipleObjects) {
             glUniform1f(typeLocation, 1f);
+            draw(buffersMain, shaderProgramMain);
+        }
+
+        if (showLight) {
+            camera = new Camera().withPosition(new Vec3D(5, 5, 5)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
+            glUniform1f(typeLocation, 666f);
+            glUniform1f(colorLocation, 1f); // yellow
+            glUniform1f(timeLocation, 0f);
+
+            if (lightToMove) {
+                lightMoving += step;
+                lightPointPosition = new Vec3D(4 * Math.sin(lightMoving), 4 *Math.cos(lightMoving), 0);
+                glUniform1f(timeLocation, lightMoving); // 0
+            }
+            glUniformMatrix4fv(modelLocation, false, new Mat4Transl(lightPointPosition).floatArray()); // move light to new position
             draw(buffersMain, shaderProgramMain);
         }
     }
@@ -273,6 +288,12 @@ public class Renderer extends AbstractRenderer{
                 showTrianglesStrips = !showTrianglesStrips;
                 generateGridOrTriangleStrip();
                 break;
+            case GLFW_KEY_B: // Toggle light
+                showLight = !showLight;
+                break;
+            case GLFW_KEY_V:
+                lightToMove = !lightToMove;
+                break;
             default:
                 System.err.println("Unknown key detected");
                 break;
@@ -285,8 +306,8 @@ public class Renderer extends AbstractRenderer{
             if (mousePressed) {
                 switch (buttonPressed) {
                     case GLFW_MOUSE_BUTTON_LEFT:
-                        camera = camera.addAzimuth(Math.PI / 2 * (oldMx - x) / LwjglWindow.WIDTH);
-                        camera = camera.addZenith(Math.PI / 2 * (oldMy - y) / LwjglWindow.HEIGHT);
+                        camera = camera.addAzimuth(Math.PI / 5 * (oldMx - x) / LwjglWindow.WIDTH);
+                        camera = camera.addZenith(Math.PI / 5 * (oldMy - y) / LwjglWindow.HEIGHT);
                         oldMx = x;
                         oldMy = y;
                         break;

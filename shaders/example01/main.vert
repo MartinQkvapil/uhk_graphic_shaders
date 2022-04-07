@@ -25,12 +25,9 @@ out vec3 normal;
 vec3 getNormal(vec3 u, vec3 v) {
 	return cross(u, v);
 }
-
-
 float getSimple(vec2 vec) {
 	return sin(vec.y * PI * 2);
 }
-
 /** Kartezky objects */
 vec3 getKartez01(vec2 vec){
 	float z = 0.65 * cos(sqrt(20 * vec.x * vec.x + 20 * vec.y * vec.y) + sin(time));
@@ -54,8 +51,7 @@ vec3 getSpherical01(vec2 vec) { // From exercise
 	float z = 0.5 * r * sin(ze);
 	return vec3(x, y, z);
 }
-
-vec3 getSpherical02(vec2 position) {
+vec3 getSpericalCircle(vec2 position, float radius) {
 	float az = position.x * PI; // <-1;1> -> <-PI;PI>
 	float ze = position.y * PI / 2.0;
 	float r = 1.0;
@@ -65,7 +61,6 @@ vec3 getSpherical02(vec2 position) {
 	float z = r * sin(ze);
 	return vec3(x, y, z);
 }
-
 /** Cylindric objects */
 vec3 getCylindric01(vec2 vec){
 	float u = vec.x * PI * (cos(time));
@@ -89,7 +84,7 @@ void main() {
 	vec3 u, v;
 	vec3 objNormal;
 
-
+	// OBJECTS
 	if (type == 0) {
 		lastPosition = getKartez01(position);
 		// Calculate kartez normal
@@ -100,13 +95,14 @@ void main() {
 		u = getKartez02(position + vec2(DEVIATION, 0)) - getKartez02(position - vec2(DEVIATION, 0));
 		v = getKartez02(position + vec2(0, DEVIATION)) - getKartez02(position - vec2(0, DEVIATION));
 	} else if (type == 2) {
+//		lastPosition = getSpericalCircle(position);
+//		float radius = 1f;
+//		u = getSpericalCircle(position + vec2(DEVIATION, 0), radius) - getSpericalCircle(position - vec2(DEVIATION, 0), radius);
+//		v = getSpericalCircle(position + vec2(0, DEVIATION), radius) - getSpericalCircle(position - vec2(0, DEVIATION), radius);
+	} else if (type == 3) {
 		lastPosition = getSpherical01(position);
 		u = getSpherical01(position + vec2(DEVIATION, 0)) - getSpherical01(position - vec2(DEVIATION, 0));
 		v = getSpherical01(position + vec2(0, DEVIATION)) - getSpherical01(position - vec2(0, DEVIATION));
-	} else if (type == 3) {
-		lastPosition = getSpherical02(position);
-		u = getSpherical02(position + vec2(DEVIATION, 0)) - getSpherical02(position - vec2(DEVIATION, 0));
-		v = getSpherical02(position + vec2(0, DEVIATION)) - getSpherical02(position - vec2(0, DEVIATION));
 	} else if (type == 4) {
 		lastPosition = getCylindric01(position);
 		u = getCylindric01(position + vec2(DEVIATION, 0)) - getCylindric01(position - vec2(DEVIATION, 0));
@@ -118,6 +114,12 @@ void main() {
 	} else {
 		lastPosition = vec3(position, getSimple(position));
 	}
+
+	// SUN
+	if (type == 666) {
+		lastPosition = getSpericalCircle(position, 0.5);
+	}
+
 	// Transformation normal to other vectors - PG3_14 s14 #normalTransformation
 	normal = transpose(inverse(mat3(model))) * getNormal(u, v);
 
