@@ -9,9 +9,6 @@ uniform float color;
 uniform float type;
 uniform mat4 model;
 uniform float time;
-
-
-
 uniform vec3 light;
 
 
@@ -21,6 +18,10 @@ const float DEVIATION = 0.01;
 out vec2 coord;
 out vec4 objectPosition;
 out vec3 normal;
+
+// Light
+out vec3 lightDirection, viewDirectoin;
+out float dist;
 
 vec3 getNormal(vec3 u, vec3 v) {
 	return cross(u, v);
@@ -78,13 +79,10 @@ void main() {
 	// grid je <0;1> - chci <-1;1> Position changed;
 	vec2 position = inPosition * 2 - 1;
 	vec3 lastPosition;
+	vec4 lightPosition;
 	vec3 u, v;
 	vec3 objNormal;
 
-	// SUN
-	if (type == 666) {
-		lastPosition = getSpericalCircle(position, 0.4);
-	}
 
 	// OBJECTS
 	if (type == 0) {
@@ -113,8 +111,11 @@ void main() {
 		lastPosition = getCylindric01(position);
 		u = getCylindric01(position + vec2(DEVIATION, 0)) - getCylindric01(position - vec2(DEVIATION, 0));
 		v = getCylindric01(position + vec2(0, DEVIATION)) - getCylindric01(position - vec2(0, DEVIATION));
-	} else {
-		lastPosition = vec3(position, getSimple(position));
+	}
+
+	// SUN
+	if (type == 666) {
+		lastPosition = getSpericalCircle(position, 0.4);
 	}
 
 
@@ -123,6 +124,13 @@ void main() {
 
 	// Object position
 	objectPosition = model * vec4(lastPosition, 1.0);
+	// Light position
+	lightPosition = model * vec4(light, 1.0);
+
+	// Light direction
+	lightDirection = normalize(light - objectPosition.xyz);
+	viewDirectoin = -objectPosition.xyz;
+	dist = length(lightDirection);
 
 	vec4 pos4 = vec4(lastPosition, 1.0);
 	gl_Position = projection * view * model * pos4;

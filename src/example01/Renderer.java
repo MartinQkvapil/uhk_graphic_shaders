@@ -162,6 +162,7 @@ public class Renderer extends AbstractRenderer{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUniformMatrix4fv(viewLocation, false,  camera.getViewMatrix().floatArray());
         glUniformMatrix4fv(projectionLocation, false, projection.floatArray());
+        glUniform3fv(lightLocation, ToFloatArray.convert(lightPointPosition));
         glUniformMatrix4fv(modelLocation, false, model.floatArray());
 
         glUniform1f(colorLocation, colorType);
@@ -184,7 +185,7 @@ public class Renderer extends AbstractRenderer{
         if (showLight) {
             camera = new Camera().withPosition(new Vec3D(5, 5, 5)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
             glUniform1f(typeLocation, 666f);
-            glUniform1f(colorLocation, 1f); // yellow
+            glUniform1f(colorLocation, 666f); // yellow
             glUniform1f(timeLocation, 0f);
 
             if (lightToMove) {
