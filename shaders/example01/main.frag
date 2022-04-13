@@ -30,11 +30,11 @@ void main() {
 	float NDotL = max(dot(norm,lightDir),0.0);
 	float NDotH = max(0.0, dot(norm, normalize(lightDir + viewDir)));
 
-	vec3 reflect = normalize((( 2.0 * norm) * NDotL) - lightDir);
+	vec3 reflect = normalize((( 2.0 * norm) * NDotL) - lightDir); // #reflection
 	float RDotV = max(0.0, dot(reflect, viewDir));
 
-	vec4 ambient = vec4(0.75,0.75,0.75,1.0);
-	vec4 diffuse = NDotL * lightColor;
+	vec4 ambient = vec4(0.75,0.75,0.75,1.0); // #ambient
+	vec4 diffuse = NDotL * lightColor; // #duffus
 	vec4 specular = NDotH * lightColor;
 
 	vec4 totalSpecular = specular * pow(RDotV, power);
@@ -48,15 +48,13 @@ void main() {
 		lighting = ambient;
 	}
 
-	outColor = vec4(1.0, 0.0, 1.0, 1.0) * lighting;
-//	if(color == 0) outColor = textureColor; // #texture;
-//	if(color == 1) outColor = vec4(1f, 1f, 0f, 1f); // #depthBuff
-//	if(color == 2) outColor = vec4(coord, 0f, 1f); // #colorToTexture
-//	if(color == 3) outColor = objectPosition; // #objPosition
-//	if(color == 4) outColor = vec4(normalize(normal),1f); // #normal // always normalize normal
-//	if(color == 5) outColor = vec4(1.0, 1.0, 1.0, 1.0); // mapping texturer rgba
-//	if(color == 6) outColor = vec4(1.0, 0.0, 1.0, 1.0);
-//	if(color == 7) outColor = vec4(1.0, 1.0, 1.0, 1.0); // light + texture
 
+	if(color == 0) outColor = textureColor; // #texture;
+	if(color == 1) outColor = vec4(1f, 1f, 0f, 1f); // #depthBuff
+	if(color == 2) outColor = vec4(coord, 0f, 1f); // #colorToTexture
+	if(color == 3) outColor = objectPosition; // #objPosition
+	if(color == 4) outColor = vec4(normalize(normal),1f); // #normal // always normalize normal
+	if(color == 5) outColor = vec4(1.0, 0.0, 1.0, 1.0) * lighting; // #colorAndLight
+	if(color == 6) outColor = textureColor * lighting; // #lightAndtexture
 	if(color == 666) outColor = vec4(1f, 1f, 0f, 1f);
 }

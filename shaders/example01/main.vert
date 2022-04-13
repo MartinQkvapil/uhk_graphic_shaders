@@ -130,7 +130,7 @@ void main() {
 	// Light direction
 	lightDirection = normalize(light - objectPosition.xyz);
 	viewDirectoin = -objectPosition.xyz;
-	dist = length(lightDirection);
+	dist = length(lightDirection); // #dist
 
 	vec4 pos4 = vec4(lastPosition, 1.0);
 	gl_Position = projection * view * model * pos4;
