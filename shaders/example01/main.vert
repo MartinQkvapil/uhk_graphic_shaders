@@ -53,7 +53,7 @@ vec3 getSpherical01(vec2 vec) { // From exercise
 	return vec3(x, y, z);
 }
 vec3 getSpericalCircle(vec2 position, float radius) {
-	float az = position.x * PI; // <-1;1> -> <-PI;PI>
+	float az = position.x * PI + time; // <-1;1> -> <-PI;PI>
 	float ze = position.y * PI / 2.0;
 	float r = 1.0 * radius;
 
@@ -120,10 +120,7 @@ void main() {
 		lastPosition = getCylindric02(position);
 		u = getCylindric02(position + vec2(DEVIATION, 0)) - getCylindric02(position - vec2(DEVIATION, 0));
 		v = getCylindric02(position + vec2(0, DEVIATION)) - getCylindric02(position - vec2(0, DEVIATION));
-	}
-
-	// SUN
-	if (type == 666) {
+	} else if (type == 666) {
 		lastPosition = getSpericalCircle(position, 0.4);
 	}
 
@@ -139,7 +136,7 @@ void main() {
 	// Light direction
 	lightDirection = normalize(light - objectPosition.xyz);
 	viewDirectoin = -objectPosition.xyz;
-	dist = length(lightDirection); // #dist
+	dist = length(normalize(light - objectPosition.xyz)); // #dist
 
 	vec4 pos4 = vec4(lastPosition, 1.0);
 	gl_Position = projection * view * model * pos4;
