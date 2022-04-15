@@ -72,7 +72,16 @@ vec3 getCylindric01(vec2 vec){
 	float z = v / 2;
 	return vec3(x, y, z);
 }
-// TODO add one more cylindric;
+vec3 getCylindric02(vec2 vec){
+	float a = 1f, b = 1f, c = 1f, d = 1f;
+	float u = vec.x * PI * (cos(time));
+	float v = vec.y; // <-1;1>
+
+	float x = cos(u)*(a + b*cos(v));
+	float y = sin(u)*(a + b*cos(v));
+	float z = b*sin(v);
+	return vec3(x, y, z);
+}
 
 void main() {
 	coord = inPosition;
@@ -108,9 +117,9 @@ void main() {
 		u = getCylindric01(position + vec2(DEVIATION, 0)) - getCylindric01(position - vec2(DEVIATION, 0));
 		v = getCylindric01(position + vec2(0, DEVIATION)) - getCylindric01(position - vec2(0, DEVIATION));
 	} else if (type == 5) {
-		lastPosition = getCylindric01(position);
-		u = getCylindric01(position + vec2(DEVIATION, 0)) - getCylindric01(position - vec2(DEVIATION, 0));
-		v = getCylindric01(position + vec2(0, DEVIATION)) - getCylindric01(position - vec2(0, DEVIATION));
+		lastPosition = getCylindric02(position);
+		u = getCylindric02(position + vec2(DEVIATION, 0)) - getCylindric02(position - vec2(DEVIATION, 0));
+		v = getCylindric02(position + vec2(0, DEVIATION)) - getCylindric02(position - vec2(0, DEVIATION));
 	}
 
 	// SUN
