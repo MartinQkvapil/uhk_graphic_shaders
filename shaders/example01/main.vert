@@ -95,19 +95,19 @@ void main() {
 
 	// OBJECTS
 	if (type == 0) {
-		lastPosition = getKartez01(position);
-		// Calculate kartez normal
-		u = getKartez01(position + vec2(DEVIATION, 0)) - getKartez01(position - vec2(DEVIATION, 0));
-		v = getKartez01(position + vec2(0, DEVIATION)) - getKartez01(position - vec2(0, DEVIATION));
+		float radius = 1.0;
+		lastPosition = getSpericalCircle(position, radius);
+		u = getSpericalCircle(position + vec2(DEVIATION, 0), radius) - getSpericalCircle(position - vec2(DEVIATION, 0), radius);
+		v = getSpericalCircle(position + vec2(0, DEVIATION), radius) - getSpericalCircle(position - vec2(0, DEVIATION), radius);
 	} else if (type == 1) {
 		lastPosition = getKartez02(position);
 		u = getKartez02(position + vec2(DEVIATION, 0)) - getKartez02(position - vec2(DEVIATION, 0));
 		v = getKartez02(position + vec2(0, DEVIATION)) - getKartez02(position - vec2(0, DEVIATION));
 	} else if (type == 2) {
-		float radius = 1.0;
-		lastPosition = getSpericalCircle(position, radius);
-		u = getSpericalCircle(position + vec2(DEVIATION, 0), radius) - getSpericalCircle(position - vec2(DEVIATION, 0), radius);
-		v = getSpericalCircle(position + vec2(0, DEVIATION), radius) - getSpericalCircle(position - vec2(0, DEVIATION), radius);
+		lastPosition = getKartez01(position);
+		// Calculate kartez normal
+		u = getKartez01(position + vec2(DEVIATION, 0)) - getKartez01(position - vec2(DEVIATION, 0));
+		v = getKartez01(position + vec2(0, DEVIATION)) - getKartez01(position - vec2(0, DEVIATION));
 	} else if (type == 3) {
 		lastPosition = getSpherical01(position);
 		u = getSpherical01(position + vec2(DEVIATION, 0)) - getSpherical01(position - vec2(DEVIATION, 0));
