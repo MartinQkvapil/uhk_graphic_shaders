@@ -56,5 +56,5 @@ void main() {
 	if(color == 4) outColor = vec4(normalize(normal),1f); // #normal // always normalize normal
 	if(color == 5) outColor = vec4(1.0, 0.0, 1.0, 1.0) * lighting; // #colorAndLight
 	if(color == 6) outColor = textureColor * lighting; // #lightAndtexture
-	if(color == 666) outColor = vec4(1f, 1f, 0f, 1f);
+	if(color == 666) outColor = vec4(1f, 1f, 0f, 1f); // #lightYellowColor
 }
