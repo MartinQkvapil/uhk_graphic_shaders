@@ -10,6 +10,7 @@ in float dist;
 
 uniform vec3 light;
 uniform int lightType;
+uniform float lightSize;
 
 out vec4 outColor; // output from the fragment shader
 
@@ -44,7 +45,7 @@ void main() {
 	float att = 1.0 / (attenuationConst + attenuationLinear * dist + attenuationQuadratic * dist * dist);
 	vec4 lighting = ambient + att * (diffuse + totalSpecular);
 
-	if (max(dot(normalize(-light),normalize(-lightDir)), 0) >  0.8) {
+	if (max(dot(normalize(-light),normalize(-lightDir)), 0) > lightSize) {
 		if (lightType == 0) { lighting = ambient + att * (diffuse + specular); }
 		if (lightType == 1) { lighting = att * (diffuse + specular); }
 		if (lightType == 2) { lighting = ambient + att * (specular); }

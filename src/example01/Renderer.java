@@ -32,7 +32,7 @@ public class Renderer extends AbstractRenderer{
 
     // Locations
     private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
-    private int lightLocation, lightPartLocation;
+    private int lightLocation, lightPartLocation, spotLightLocation;
     private int filterLocation;
 
     private Mat4 projection, model, rotation, translation;
@@ -69,6 +69,7 @@ public class Renderer extends AbstractRenderer{
     // Object movement
     private float moving = 0f;
     private float lightMoving = 0f;
+    private float spotLight = 0.97f;
 
 
     @Override
@@ -88,6 +89,8 @@ public class Renderer extends AbstractRenderer{
         colorLocation = glGetUniformLocation(shaderProgramMain, "color");
         modelLocation = glGetUniformLocation(shaderProgramMain, "model");
         lightPartLocation = glGetUniformLocation(shaderProgramMain, "lightType");
+        spotLightLocation = glGetUniformLocation(shaderProgramMain, "lightSize");
+
 
         // Light
         lightLocation = glGetUniformLocation(shaderProgramMain, "light");
@@ -190,6 +193,7 @@ public class Renderer extends AbstractRenderer{
             glUniform1f(typeLocation, SUN);
             glUniform1f(colorLocation, SUN); // yellow
             glUniform1f(timeLocation, 0f);
+            glUniform1f(spotLightLocation, spotLight);
 
             if (lightToMove) {
                 lightMoving += step;
@@ -269,17 +273,13 @@ public class Renderer extends AbstractRenderer{
             case GLFW_KEY_9:
                 if (lightPart > 0) lightPart--;
                 break;
-            case GLFW_KEY_8:
-                // TODO rotation up
+            case GLFW_KEY_X:
+                spotLight+=0.001;
+                System.out.println(spotLight);
                 break;
-            case GLFW_KEY_2:
-                // TODO rotation down
-                break;
-            case GLFW_KEY_4:
-                // TODO rotation left
-                break;
-            case GLFW_KEY_6:
-                // TODO rotation right
+            case GLFW_KEY_C:
+                spotLight-=0.001;
+                System.out.println(spotLight);
                 break;
             case GLFW_KEY_G:
                 startToMove = !startToMove;
