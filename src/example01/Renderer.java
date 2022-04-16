@@ -32,7 +32,7 @@ public class Renderer extends AbstractRenderer{
 
     // Locations
     private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
-    private int lightLocation;
+    private int lightLocation, lightPartLocation;
     private int filterLocation;
 
     private Mat4 projection, model, rotation, translation;
@@ -49,6 +49,7 @@ public class Renderer extends AbstractRenderer{
     private boolean showLight = false; // N
     private boolean lightToMove = false; // N
 
+    private int lightPart = 0;
     private int showFilter = 1;
     private int colorType = 0;
     private int objectType = 0;
@@ -86,6 +87,7 @@ public class Renderer extends AbstractRenderer{
         timeLocation = glGetUniformLocation(shaderProgramMain, "time");
         colorLocation = glGetUniformLocation(shaderProgramMain, "color");
         modelLocation = glGetUniformLocation(shaderProgramMain, "model");
+        lightPartLocation = glGetUniformLocation(shaderProgramMain, "lightType");
 
         // Light
         lightLocation = glGetUniformLocation(shaderProgramMain, "light");
@@ -166,6 +168,7 @@ public class Renderer extends AbstractRenderer{
         glUniformMatrix4fv(modelLocation, false, model.floatArray());
 
         glUniform1f(colorLocation, colorType);
+        glUniform1f(lightPartLocation, lightPart);
         glUniform1f(typeLocation, objectType);
 
         float step = 0.01f;
@@ -184,8 +187,8 @@ public class Renderer extends AbstractRenderer{
 
         if (showLight) {
             camera = new Camera().withPosition(new Vec3D(5, 5, 5)).withAzimuth(5 / 4f * Math.PI).withZenith(-1 / 5f * Math.PI);
-            glUniform1f(typeLocation, 666f);
-            glUniform1f(colorLocation, 666f); // yellow
+            glUniform1f(typeLocation, SUN);
+            glUniform1f(colorLocation, SUN); // yellow
             glUniform1f(timeLocation, 0f);
 
             if (lightToMove) {
@@ -259,6 +262,12 @@ public class Renderer extends AbstractRenderer{
                 break;
             case GLFW_KEY_I:
                 if (objectType > 0) objectType--;
+                break;
+            case GLFW_KEY_7:
+                if (lightPart > 4) lightPart++; // Part of light
+                break;
+            case GLFW_KEY_9:
+                if (lightPart > 0) lightPart--;
                 break;
             case GLFW_KEY_8:
                 // TODO rotation up

@@ -7,7 +7,9 @@ in vec3 normal;
 in vec3 lightDirection;
 in vec3 viewDirection;
 in float dist;
+
 uniform vec3 light;
+uniform int lightType;
 
 out vec4 outColor; // output from the fragment shader
 
@@ -43,18 +45,21 @@ void main() {
 	vec4 lighting = ambient + att * (diffuse + totalSpecular);
 
 	if (max(dot(normalize(-light),normalize(-lightDir)), 0) >  0.8) {
-		lighting = ambient + att * (diffuse + specular);
+		if (lightType == 0) { lighting = ambient + att * (diffuse + specular); }
+		if (lightType == 1) { lighting = att * (diffuse + specular); }
+		if (lightType == 2) { lighting = ambient + att * (specular); }
+		if (lightType == 3) { lighting = ambient + att; }
 	} else {
 		lighting = ambient;
 	}
 
 
-	if(color == 0) outColor = textureColor; // #texture;
+	if(color == 0) outColor = vec4(1.0, 0.0, 1.0, 1.0) * lighting; // #colorAndLight
 	if(color == 1) outColor = vec4(1.0, 1.0, 0.0, 1.0); // #depthBuff
 	if(color == 2) outColor = vec4(coord, 0.0, 1.0); // #colorToTexture
 	if(color == 3) outColor = objectPosition; // #objPosition
 	if(color == 4) outColor = vec4(normalize(normal),1.0); // #normal // always normalize normal
-	if(color == 5) outColor = vec4(1.0, 0.0, 1.0, 1.0) * lighting; // #colorAndLight
+	if(color == 5) outColor = textureColor; // #texture;
 	if(color == 6) outColor = textureColor * lighting; // #lightAndtexture
 	if(color == 666) outColor = vec4(1.0, 1.0, 0.0, 1.0); // #lightYellowColor
 }
