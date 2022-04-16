@@ -14,8 +14,8 @@ Vstupem do GPU bude vždy rovinný grid.
 10. [done] Umožněte změnu modelovací transformace tělesa, animací v čase nebo ovládáním uživatelem.
 11. [done] Pozorovatele (pohledovou transformaci) nastavte pomocí kamery a ovládejte myší (rozhlížení) a klávesami WSAD (pohyb vpřed, vzad, vlevo, vpravo).
 12. [done] Umožněte přepínání ortogonální i perspektivní projekce.
-13. Vytvořte pixelový program pro zobrazení texturovaného osvětleného povrchu pomoci Blinn-Phong osvětlovacího modelu, všechny složky. Jednotlivé složky samostatně zapínejte a umožněte změnu vzájemné polohy světla a tělesa.
-14. Implementujte reflektorový zdroj světla a útlum prostředí. Implementujte hladký přechod na okraji reflektorového světla. Pozici zdroje světla znázorněte.
+13. [done] Vytvořte pixelový program pro zobrazení texturovaného osvětleného povrchu pomoci Blinn-Phong osvětlovacího modelu, všechny složky. Jednotlivé složky samostatně zapínejte a umožněte změnu vzájemné polohy světla a tělesa.
+14. [done] Implementujte reflektorový zdroj světla a útlum prostředí. Implementujte hladký přechod na okraji reflektorového světla. Pozici zdroje světla znázorněte.
 15. [done] Vyplňte autoevaluační tabulku k sebehodnocení odevzdaného řešení. Tabulku odevzdejte jako součást odevzdání úlohy v adresáři projektu. Slouží především k shrnutí vámi implementované funkcionality projektu a k zjednodušení hodnocení.
 16. Implementujte jeden postprocessingový průchod vizualizačním řetězcem, který upraví výsledek rendrování prostorové scény vypočtený po prvním průchodu. Využijte RenderTarget pro kreslení do rastrového obrazu, který následně zpracujte v druhém průchodu. Zvolte vhodnou rastrovou operaci, např. rozmazání, zaostření, změnu barev a podobně, a implementujte ji jako fragment shaderovou operaci v samostatném průchodu pipelinou.
 17. [done] V rámci řešení první průběžné úlohy i semestrálního projektu bude požadováno, aby si studenti verzovali (pomocí gitlab.com nebo github.com) postup vývoje aplikace. Vytvořte si privátní repozitář, přidejte vašeho cvičícího a pravidelně ukládejte jednotlivé commity. Finální verzi projektu odevzdejte standardně prostřednictvím Olivy.
