@@ -9,7 +9,7 @@ Výpočet geometrie zobrazovaných těles (souřadnic vrcholů) i přepočet na 
 Vstupem do GPU bude vždy rovinný grid. 
 6. [done] Alespoň jednu z funkcí modifikujte v čase pomocí uniform proměnné. (time)
 7. [done] Zobrazte alespoň dvě tělesa zároveň, vypočtené a načtené.
-8. Vytvořte vhodné pixelové programy pro renderování hodnot na povrchu těles znázorňující barevně pozici (souřadnici xyz, hloubku), barvu povrchu, mapovanou texturu, normálu a souřadnice do textury, vzdálenost od zdroje světla, vhodné pro debugování.
+8. [done] Vytvořte vhodné pixelové programy pro renderování hodnot na povrchu těles znázorňující barevně pozici (souřadnici xyz, hloubku), barvu povrchu, mapovanou texturu, normálu a souřadnice do textury, vzdálenost od zdroje světla, vhodné pro debugování.
 9. [done] Normálu povrchu určete parciální derivací funkce nebo diferencí ve vertex shaderu.
 10. [done] Umožněte změnu modelovací transformace tělesa, animací v čase nebo ovládáním uživatelem.
 11. [done] Pozorovatele (pohledovou transformaci) nastavte pomocí kamery a ovládejte myší (rozhlížení) a klávesami WSAD (pohyb vpřed, vzad, vlevo, vpravo).
@@ -17,6 +17,6 @@ Vstupem do GPU bude vždy rovinný grid.
 13. [done] Vytvořte pixelový program pro zobrazení texturovaného osvětleného povrchu pomoci Blinn-Phong osvětlovacího modelu, všechny složky. Jednotlivé složky samostatně zapínejte a umožněte změnu vzájemné polohy světla a tělesa.
 14. [done] Implementujte reflektorový zdroj světla a útlum prostředí. Implementujte hladký přechod na okraji reflektorového světla. Pozici zdroje světla znázorněte.
 15. [done] Vyplňte autoevaluační tabulku k sebehodnocení odevzdaného řešení. Tabulku odevzdejte jako součást odevzdání úlohy v adresáři projektu. Slouží především k shrnutí vámi implementované funkcionality projektu a k zjednodušení hodnocení.
-16. Implementujte jeden postprocessingový průchod vizualizačním řetězcem, který upraví výsledek rendrování prostorové scény vypočtený po prvním průchodu. Využijte RenderTarget pro kreslení do rastrového obrazu, který následně zpracujte v druhém průchodu. Zvolte vhodnou rastrovou operaci, např. rozmazání, zaostření, změnu barev a podobně, a implementujte ji jako fragment shaderovou operaci v samostatném průchodu pipelinou.
+16. [done] Implementujte jeden postprocessingový průchod vizualizačním řetězcem, který upraví výsledek rendrování prostorové scény vypočtený po prvním průchodu. Využijte RenderTarget pro kreslení do rastrového obrazu, který následně zpracujte v druhém průchodu. Zvolte vhodnou rastrovou operaci, např. rozmazání, zaostření, změnu barev a podobně, a implementujte ji jako fragment shaderovou operaci v samostatném průchodu pipelinou.
 17. [done] V rámci řešení první průběžné úlohy i semestrálního projektu bude požadováno, aby si studenti verzovali (pomocí gitlab.com nebo github.com) postup vývoje aplikace. Vytvořte si privátní repozitář, přidejte vašeho cvičícího a pravidelně ukládejte jednotlivé commity. Finální verzi projektu odevzdejte standardně prostřednictvím Olivy.
-18. Před odevzdáním si znovu přečtěte pravidla odevzdávání a hodnocení projektů uvedené v Průvodci studiem
+18. [done] Před odevzdáním si znovu přečtěte pravidla odevzdávání a hodnocení projektů uvedené v Průvodci studiem
