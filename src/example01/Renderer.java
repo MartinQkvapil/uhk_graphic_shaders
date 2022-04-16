@@ -205,7 +205,7 @@ public class Renderer extends AbstractRenderer{
         glViewport(0,0, LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
 
         glUniform1f(filterLocation, showFilter);
-        glEnable(GL_TEXTURE_2D);
+
         renderTarget.getColorTexture().bind(shaderProgramPost, "textureRendered", 0);
 
         draw(buffersPost, shaderProgramMain);
