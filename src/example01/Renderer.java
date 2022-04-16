@@ -33,7 +33,7 @@ public class Renderer extends AbstractRenderer{
     // Locations
     private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
     private int lightLocation, lightPartLocation, spotLightLocation;
-    private int filterLocation;
+    private int filterLocation, timeLocationFilter;
 
     private Mat4 projection, model, rotation, translation;
 
@@ -42,15 +42,15 @@ public class Renderer extends AbstractRenderer{
     public static final float SUN = 666;
 
     private boolean mousePressed = false;
-    private boolean startToMove = false;
+    private boolean startToMove = true;
     private boolean showHelp = false;
     private boolean showMultipleObjects = false;
     private boolean showTrianglesStrips = false; // N
-    private boolean showLight = false; // N
-    private boolean lightToMove = false; // N
+    private boolean showLight = true; // N
+    private boolean lightToMove = true; // N
 
     private int lightPart = 0;
-    private int showFilter = 1;
+    private int showFilter = 0;
     private int colorType = 0;
     private int objectType = 0;
     private int fillType = 0;
@@ -98,6 +98,7 @@ public class Renderer extends AbstractRenderer{
         // Postprocessing
         shaderProgramPost = ShaderUtils.loadProgram("/example01/post");
         filterLocation = glGetUniformLocation(shaderProgramPost, "showFilter");
+        timeLocationFilter = glGetUniformLocation(shaderProgramPost, "timeFilter");
 
 
         resetCamera();
@@ -212,6 +213,7 @@ public class Renderer extends AbstractRenderer{
         glViewport(0,0, LwjglWindow.WIDTH, LwjglWindow.HEIGHT);
 
         glUniform1f(filterLocation, showFilter);
+        glUniform1f(timeLocationFilter, moving);
 
         renderTarget.getColorTexture().bind(shaderProgramPost, "textureRendered", 0);
 
@@ -222,6 +224,9 @@ public class Renderer extends AbstractRenderer{
         switch (key) {
             case GLFW_KEY_R: // RESET
                 resetCamera();
+                startToMove = false;
+                showFilter = 1;
+                showLight = false;
                 projection = setProjectionPerspective();
                 break;
             case GLFW_KEY_W:
@@ -293,6 +298,7 @@ public class Renderer extends AbstractRenderer{
                 break;
             case GLFW_KEY_N:
                 showFilter ^= 1;
+                startToMove = true;
                 break;
             case GLFW_KEY_F:
                 showTrianglesStrips = !showTrianglesStrips;
