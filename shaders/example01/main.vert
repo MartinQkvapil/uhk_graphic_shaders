@@ -20,7 +20,7 @@ out vec4 objectPosition;
 out vec3 normal;
 
 // Light
-out vec3 lightDirection, viewDirectoin;
+out vec3 lightDirection, viewDirection;
 out float dist;
 
 vec3 getNormal(vec3 u, vec3 v) {
@@ -73,7 +73,7 @@ vec3 getCylindric01(vec2 vec){
 	return vec3(x, y, z);
 }
 vec3 getCylindric02(vec2 vec){
-	float a = 1f, b = 1f, c = 1f, d = 1f;
+	float a = 1.0, b = 1.0, c = 1.0, d = 1.0;
 	float u = vec.x * PI * (cos(time));
 	float v = vec.y; // <-1;1>
 
@@ -135,7 +135,7 @@ void main() {
 
 	// Light direction
 	lightDirection = normalize(light - objectPosition.xyz);
-	viewDirectoin = -objectPosition.xyz;
+	viewDirection = -objectPosition.xyz;
 	dist = length(normalize(light - objectPosition.xyz)); // #dist
 
 	vec4 pos4 = vec4(lastPosition, 1.0);
