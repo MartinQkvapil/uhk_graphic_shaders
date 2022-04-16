@@ -18,7 +18,7 @@ const vec4 lightColor = vec4(1.0, 1.0, 1.0, 1.0);
 const float attenuationConst = 1.0;
 const float attenuationLinear = 0.3;
 const float attenuationQuadratic = 0.03;
-const float power = 20f;
+const float power = 20.0;
 
 void main() {
 	vec4 textureColor = texture(currentTexture, coord);
@@ -42,7 +42,7 @@ void main() {
 	float att = 1.0 / (attenuationConst + attenuationLinear * dist + attenuationQuadratic * dist * dist);
 	vec4 lighting = ambient + att * (diffuse + totalSpecular);
 
-	if (max(dot(normalize(-light),normalize(-lightDir)), 0) >  0.8f) {
+	if (max(dot(normalize(-light),normalize(-lightDir)), 0) >  0.8) {
 		lighting = ambient + att * (diffuse + specular);
 	} else {
 		lighting = ambient;
@@ -50,11 +50,11 @@ void main() {
 
 
 	if(color == 0) outColor = textureColor; // #texture;
-	if(color == 1) outColor = vec4(1f, 1f, 0f, 1f); // #depthBuff
-	if(color == 2) outColor = vec4(coord, 0f, 1f); // #colorToTexture
+	if(color == 1) outColor = vec4(1.0, 1.0, 0.0, 1.0); // #depthBuff
+	if(color == 2) outColor = vec4(coord, 0.0, 1.0); // #colorToTexture
 	if(color == 3) outColor = objectPosition; // #objPosition
-	if(color == 4) outColor = vec4(normalize(normal),1f); // #normal // always normalize normal
+	if(color == 4) outColor = vec4(normalize(normal),1.0); // #normal // always normalize normal
 	if(color == 5) outColor = vec4(1.0, 0.0, 1.0, 1.0) * lighting; // #colorAndLight
 	if(color == 6) outColor = textureColor * lighting; // #lightAndtexture
-	if(color == 666) outColor = vec4(1f, 1f, 0f, 1f); // #lightYellowColor
+	if(color == 666) outColor = vec4(1.0, 1.0, 0.0, 1.0); // #lightYellowColor
 }
