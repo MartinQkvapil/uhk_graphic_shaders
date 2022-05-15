@@ -42,11 +42,11 @@ public class Renderer2 extends AbstractRenderer2 {
     public static final float SUN = 666;
 
     private boolean mousePressed = false;
-    private boolean startToMove = true;
+    private boolean startToMove = false;
     private boolean showHelp = false;
     private boolean showMultipleObjects = false;
     private boolean showTrianglesStrips = false; // N
-    private boolean showLight = true; // N
+    private boolean showLight = false; // N
     private boolean lightToMove = true; // N
 
     private int lightPart = 0;
@@ -108,6 +108,7 @@ public class Renderer2 extends AbstractRenderer2 {
         translation = new Mat4Identity();
 
         generateGridOrTriangleStrip();
+       // createBuffers();
         renderTarget = new OGLRenderTarget(1024, 1024);
 
         getTextures();
@@ -298,7 +299,6 @@ public class Renderer2 extends AbstractRenderer2 {
                 break;
             case GLFW_KEY_N:
                 showFilter ^= 1;
-                startToMove = true;
                 break;
             case GLFW_KEY_F:
                 showTrianglesStrips = !showTrianglesStrips;
@@ -448,6 +448,58 @@ public class Renderer2 extends AbstractRenderer2 {
             buffersMain = GridFactory2.generateTriangleStrips(50, 50);
             buffersPost = GridFactory2.generateTriangleStrips(2,2);
         }
+    }
+
+    void createBuffers() {
+        float[] cube = {
+                // bottom (z-) face
+                1, 0, 0,	0, 0, -1,
+                0, 0, 0,	0, 0, -1,
+                1, 1, 0,	0, 0, -1,
+                0, 1, 0,	0, 0, -1,
+                // top (z+) face
+                1, 0, 1,	0, 0, 1,
+                0, 0, 1,	0, 0, 1,
+                1, 1, 1,	0, 0, 1,
+                0, 1, 1,	0, 0, 1,
+                // x+ face
+                1, 1, 0,	1, 0, 0,
+                1, 0, 0,	1, 0, 0,
+                1, 1, 1,	1, 0, 0,
+                1, 0, 1,	1, 0, 0,
+                // x- face
+                0, 1, 0,	-1, 0, 0,
+                0, 0, 0,	-1, 0, 0,
+                0, 1, 1,	-1, 0, 0,
+                0, 0, 1,	-1, 0, 0,
+                // y+ face
+                1, 1, 0,	0, 1, 0,
+                0, 1, 0,	0, 1, 0,
+                1, 1, 1,	0, 1, 0,
+                0, 1, 1,	0, 1, 0,
+                // y- face
+                1, 0, 0,	0, -1, 0,
+                0, 0, 0,	0, -1, 0,
+                1, 0, 1,	0, -1, 0,
+                0, 0, 1,	0, -1, 0
+        };
+
+        int[] indexBufferData = new int[36];
+        for (int i = 0; i<6; i++){
+            indexBufferData[i*6] = i*4;
+            indexBufferData[i*6 + 1] = i*4 + 1;
+            indexBufferData[i*6 + 2] = i*4 + 2;
+            indexBufferData[i*6 + 3] = i*4 + 1;
+            indexBufferData[i*6 + 4] = i*4 + 2;
+            indexBufferData[i*6 + 5] = i*4 + 3;
+        }
+        OGLBuffers.Attrib[] attributes = {
+                new OGLBuffers.Attrib("inPosition", 3),
+                new OGLBuffers.Attrib("inNormal", 3)
+        };
+
+        buffersMain = new OGLBuffers(cube, attributes, indexBufferData);
+        System.out.println(buffersMain.toString());
     }
 
     @Override

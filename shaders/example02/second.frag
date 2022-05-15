@@ -1,28 +1,6 @@
 #version 150
 in vec2 coord;
 
-out vec4 outColor; // output from the fragment shader
-
-uniform sampler2D textureRendered;
-uniform float showFilter;
-uniform float timeFilter;
-
-void main() {
-	vec4 textureColor = texture(textureRendered, coord);
-
-	if (showFilter == 0) {
-		vec4 c = texture(textureRendered, coord);
-		c = (c + vec4(0.205, 0.209, 0.228, 0.0)) * vec4(1.5,abs(cos(timeFilter)), abs(sin(timeFilter)), 1.0);
-		outColor = c;
-	} else {
-		outColor = textureColor;
-	}
-}
-
-
-/*#version 150
-in vec2 coord;
-
 precision highp float;
 
 out vec4 outColor; // output from the fragment shader
@@ -44,11 +22,11 @@ float FXAA_SUBPIX_SHIFT = 1.0/4.0;
 vec4 applyFXAA(sampler2D tex) {
 	vec4 color;
 	vec2 fragCoord = gl_FragCoord.xy;
-	vec3 rgbNW = texture2D(tex, (fragCoord + vec2(-1.0, -1.0)) * uResolution).xyz;
-	vec3 rgbNE = texture2D(tex, (fragCoord + vec2(1.0, -1.0)) * uResolution).xyz;
-	vec3 rgbSW = texture2D(tex, (fragCoord + vec2(-1.0, 1.0)) * uResolution).xyz;
-	vec3 rgbSE = texture2D(tex, (fragCoord + vec2(1.0, 1.0)) * uResolution).xyz;
-	vec3 rgbM  = texture2D(tex, fragCoord  * uResolution).xyz;
+	vec3 rgbNW = texture(tex, (fragCoord + vec2(-1.0, -1.0)) * uResolution).xyz;
+	vec3 rgbNE = texture(tex, (fragCoord + vec2(1.0, -1.0)) * uResolution).xyz;
+	vec3 rgbSW = texture(tex, (fragCoord + vec2(-1.0, 1.0)) * uResolution).xyz;
+	vec3 rgbSE = texture(tex, (fragCoord + vec2(1.0, 1.0)) * uResolution).xyz;
+	vec3 rgbM  = texture(tex, fragCoord  * uResolution).xyz;
 	vec3 luma = vec3(0.299, 0.587, 0.114);
 	float lumaNW = dot(rgbNW, luma);
 	float lumaNE = dot(rgbNE, luma);
@@ -92,18 +70,6 @@ void main() {
 	if (showFilter == 0) {
 		outColor = textureColor;
 	} else {
-//		vec4 c = texture(textureRendered, coord);
-//		c = (c + vec4(0.205, 0.209, 0.228, 0.0)) * vec4(1.5,abs(cos(timeFilter)), abs(sin(timeFilter)), 1.0);
-//		outColor = c;
-
-		vec4 color   = applyFXAA(textureRendered);
-//		vec3 bloom   = texture2D(textureRendered, vTextureCoord).rgb;
+		outColor = applyFXAA(textureRendered);
 	}
-
-//	vec4 textureColor = applyFXAA(textureRendered);
-//	vec3 bloom   = texture2D(textureBloom, coord).rgb;
-//	textureColor.rgb    += bloom.rgb * uBloomStrength;
-//
-	outColor = textureColor;
 }
-*/

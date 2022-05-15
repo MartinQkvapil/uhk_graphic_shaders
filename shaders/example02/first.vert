@@ -120,6 +120,11 @@ void main() {
 		lastPosition = getCylindric02(position);
 		u = getCylindric02(position + vec2(DEVIATION, 0)) - getCylindric02(position - vec2(DEVIATION, 0));
 		v = getCylindric02(position + vec2(0, DEVIATION)) - getCylindric02(position - vec2(0, DEVIATION));
+	} else if (type == 6) {
+		float radius = 1.0;
+		lastPosition = getSpericalCircle(position, radius);
+		u = getSpericalCircle(position + vec2(DEVIATION, 0), radius) - getSpericalCircle(position - vec2(DEVIATION, 0), radius);
+		v = getSpericalCircle(position + vec2(0, DEVIATION), radius) - getSpericalCircle(position - vec2(0, DEVIATION), radius);
 	} else if (type == 666) {
 		lastPosition = getSpericalCircle(position, 0.4);
 	}
