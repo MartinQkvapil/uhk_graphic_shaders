@@ -14,25 +14,16 @@ uniform float timeFilter;
 uniform float window_width;
 uniform float window_height;
 
-
-uniform vec2 uResolution;
-uniform float uBloomStrength;
-uniform sampler2D textureBloom;
-
 float FXAA_REDUCE_MIN = (1.0/ 128.0);
 float FXAA_REDUCE_MUL = (1.0 / 8.0);
-float FXAA_SPAN_MAX = 8.0;
+float FXAA_SPAN_MAX = 10.0;
 vec3 SHADE = vec3(0.299, 0.587, 0.114);
-
 
 void main() {
 	if (showFilter == 0) {
 		outColor = texture(textureRendered, coord);
 	} else {
-//		outColor = vec4(fxaa(textureRendered, gl_FragCoord.st, vec2(window_width, window_height)));
-
-		vec2 windowSize = vec2(window_width, window_height);
-		vec2 inverseVP = 1.0 / windowSize.xy;
+		vec2 inverseVP = 1.0 / vec2(window_width, window_height).xy;
 		vec2 v_rgbNW = (gl_FragCoord.st + vec2(-1.0, -1.0)) * inverseVP;
 		vec2 v_rgbNE = (gl_FragCoord.st + vec2(1.0, -1.0)) * inverseVP;
 		vec2 v_rgbSW = (gl_FragCoord.st + vec2(-1.0, 1.0)) * inverseVP;
@@ -45,7 +36,6 @@ void main() {
 		vec3 rgbSE = texture(textureRendered, v_rgbSE).xyz;
 		vec4 texColor = texture(textureRendered, v_rgbM);
 		vec3 rgbM  = texColor.xyz;
-
 
 		float lumaNW = dot(rgbNW, SHADE);
 		float lumaNE = dot(rgbNE, SHADE);
@@ -67,12 +57,14 @@ void main() {
 		dir * rcpDirMin)) * inverseVP;
 
 		vec3 rgbA = 0.5 * (
-		texture(textureRendered, gl_FragCoord.st * inverseVP + dir * (1.0 / 3.0 - 0.5)).xyz +
-		texture(textureRendered, gl_FragCoord.st * inverseVP + dir * (2.0 / 3.0 - 0.5)).xyz);
+			texture(textureRendered, gl_FragCoord.st * inverseVP + dir * (1.0 / 3.0 - 0.5)).xyz +
+			texture(textureRendered, gl_FragCoord.st * inverseVP + dir * (2.0 / 3.0 - 0.5)).xyz
+		);
 
 		vec3 rgbB = rgbA * 0.5 + 0.25 * (
-		texture(textureRendered, gl_FragCoord.st * inverseVP + dir * -0.5).xyz +	texture(textureRendered, gl_FragCoord.st * inverseVP + dir * 0.5).xyz);
-
+			texture(textureRendered, gl_FragCoord.st * inverseVP + dir * -0.5).xyz +
+			texture(textureRendered, gl_FragCoord.st * inverseVP + dir * 0.5).xyz
+		);
 
 		float lumaB = dot(rgbB, SHADE);
 
