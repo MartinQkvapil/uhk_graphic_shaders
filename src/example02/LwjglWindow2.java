@@ -85,6 +85,8 @@ public class LwjglWindow2 {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
+
+
 		String text = new String(renderer.getClass().getName() );
 		text = text.substring(0,text.lastIndexOf('.'));
 		// Create the window

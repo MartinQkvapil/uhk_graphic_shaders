@@ -33,7 +33,8 @@ public class Renderer2 extends AbstractRenderer2 {
     // Locations
     private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
     private int lightLocation, lightPartLocation, spotLightLocation;
-    private int filterLocation, timeLocationFilter;
+    private int filterLocation, timeLocationFilter, WWidth, WHeight;
+
 
     private Mat4 projection, model, rotation, translation;
 
@@ -54,6 +55,7 @@ public class Renderer2 extends AbstractRenderer2 {
     private int colorType = 0;
     private int objectType = 0;
     private int fillType = 0;
+    private int pointCount = 0;
     private int textureType = 0;
     private int buttonPressed;
 
@@ -79,6 +81,7 @@ public class Renderer2 extends AbstractRenderer2 {
         glClearColor(0.1f, 0.1f, 0.1f, 1f);
 
         fillPolygon(0);
+        setMSAA(1);
 
         // Shader main program
         shaderProgramMain = ShaderUtils.loadProgram("/example02/first");
@@ -99,6 +102,8 @@ public class Renderer2 extends AbstractRenderer2 {
         shaderProgramPost = ShaderUtils.loadProgram("/example02/second");
         filterLocation = glGetUniformLocation(shaderProgramPost, "showFilter");
         timeLocationFilter = glGetUniformLocation(shaderProgramPost, "timeFilter");
+        WWidth = glGetUniformLocation(shaderProgramPost, "window_width");
+        WHeight = glGetUniformLocation(shaderProgramPost, "window_height");
 
 
         resetCamera();
@@ -123,7 +128,8 @@ public class Renderer2 extends AbstractRenderer2 {
         switch (type) {
             case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
             case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
-            case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+            case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_SMOOTH); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); break;
+            case 3: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
         }
     }
 
@@ -149,8 +155,9 @@ public class Renderer2 extends AbstractRenderer2 {
         glEnable(GL_DEPTH_TEST); // Text renderer closing ZBuffer!!!
 
         fillPolygon(fillType);
+        setMSAA(pointCount);
 
-        renderMain();
+        renderMain2();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         renderPostProcessing();
@@ -162,7 +169,7 @@ public class Renderer2 extends AbstractRenderer2 {
         text();
     }
 
-    private void renderMain() {
+    private void renderMain2() {
         glUseProgram(shaderProgramMain);
         renderTarget.bind(); // render to texture
 
@@ -215,6 +222,8 @@ public class Renderer2 extends AbstractRenderer2 {
 
         glUniform1f(filterLocation, showFilter);
         glUniform1f(timeLocationFilter, moving);
+        glUniform1f(WWidth, LwjglWindow2.WIDTH);
+        glUniform1f(WHeight, LwjglWindow2.HEIGHT);
 
         renderTarget.getColorTexture().bind(shaderProgramPost, "textureRendered", 0);
 
@@ -309,6 +318,14 @@ public class Renderer2 extends AbstractRenderer2 {
                 break;
             case GLFW_KEY_V:
                 lightToMove = !lightToMove;
+                break;
+            case GLFW_KEY_PAGE_UP:
+                if (pointCount < 100) pointCount++;
+                System.err.println("Počet bodů: " + pointCount);
+                break;
+            case GLFW_KEY_PAGE_DOWN:
+                if (pointCount > 0) pointCount--;
+                System.err.println("Počet bodů: " + pointCount);
                 break;
             default:
                 System.err.println("Unknown key detected");
@@ -448,6 +465,11 @@ public class Renderer2 extends AbstractRenderer2 {
             buffersMain = GridFactory2.generateTriangleStrips(50, 50);
             buffersPost = GridFactory2.generateTriangleStrips(2,2);
         }
+    }
+
+    private void setMSAA(int value) {
+        glfwWindowHint(GLFW_STENCIL_BITS, value);
+        glfwWindowHint(GLFW_SAMPLES, value);
     }
 
     void createBuffers() {
