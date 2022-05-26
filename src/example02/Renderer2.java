@@ -19,7 +19,6 @@ import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 
 
 public class Renderer2 extends AbstractRenderer2 {
-
     // Shaders
     private int shaderProgramMain, shaderProgramPost;
     // Buffers
@@ -34,6 +33,9 @@ public class Renderer2 extends AbstractRenderer2 {
     private int viewLocation, projectionLocation, colorLocation, modelLocation, timeLocation;
     private int lightLocation, lightPartLocation, spotLightLocation;
     private int filterLocation, timeLocationFilter, WWidth, WHeight;
+
+    private int edgeThresholdLocation, edgeThresholdMinLocation, stepsAroundLocation,
+            stepsThresholdLocation, subPixelCaptionLocation, subPixelTrimLocation, flipTextureLocation;
 
 
     private Mat4 projection, model, rotation, translation;
@@ -73,6 +75,17 @@ public class Renderer2 extends AbstractRenderer2 {
     private float lightMoving = 0f;
     private float spotLight = 0.97f;
 
+    // FXAA
+    private float edgeThreshold = 0f;  // from 0 to 1
+    private float edgeThresholdMin = 1f; // from 0 to 1
+    private float stepsAround = 3f; // from 2 to more and more
+    private float stepsThreshold = 1f; // from 0 to 1
+
+    private float subPixelCaption = 1f; // from 0 to 1
+    private float subPixelTrim = 1f; // from -1 to 1
+
+    private int flipTexture = 0;
+
 
     @Override
     public void init() {
@@ -100,13 +113,26 @@ public class Renderer2 extends AbstractRenderer2 {
 
         // Postprocessing
         shaderProgramPost = ShaderUtils.loadProgram("/example02/second");
+
         filterLocation = glGetUniformLocation(shaderProgramPost, "showFilter");
         timeLocationFilter = glGetUniformLocation(shaderProgramPost, "timeFilter");
+
         WWidth = glGetUniformLocation(shaderProgramPost, "window_width");
         WHeight = glGetUniformLocation(shaderProgramPost, "window_height");
 
+        edgeThresholdLocation = glGetUniformLocation(shaderProgramPost, "edgeThreshold");
+        edgeThresholdMinLocation = glGetUniformLocation(shaderProgramPost, "edgeThresholdMin");
+
+        stepsAroundLocation = glGetUniformLocation(shaderProgramPost, "stepsAround");
+        stepsThresholdLocation = glGetUniformLocation(shaderProgramPost, "stepsThreshold");
+
+        subPixelCaptionLocation = glGetUniformLocation(shaderProgramPost, "subPixelCaption");
+        subPixelTrimLocation = glGetUniformLocation(shaderProgramPost, "subPixelTrim");
+
+        flipTextureLocation = glGetUniformLocation(shaderProgramPost, "revertTextureBool");
 
         resetCamera();
+
         projection = setProjectionPerspective();
         model = new Mat4Identity();
         rotation = new Mat4Identity();
@@ -225,6 +251,16 @@ public class Renderer2 extends AbstractRenderer2 {
         glUniform1f(WWidth, LwjglWindow2.WIDTH);
         glUniform1f(WHeight, LwjglWindow2.HEIGHT);
 
+        // FXAA
+        glUniform1f(edgeThresholdLocation, edgeThreshold);
+        glUniform1f(edgeThresholdMinLocation, edgeThresholdMin);
+        glUniform1f(stepsAroundLocation, stepsAround);
+        glUniform1f(stepsThresholdLocation, stepsThreshold);
+        glUniform1f(subPixelCaptionLocation, subPixelCaption);
+        glUniform1f(flipTextureLocation, flipTexture);
+
+        glUniform1f(subPixelTrimLocation, subPixelTrim);
+
         renderTarget.getColorTexture().bind(shaderProgramPost, "textureRendered", 0);
 
         draw(buffersPost, shaderProgramMain);
@@ -327,6 +363,16 @@ public class Renderer2 extends AbstractRenderer2 {
                 if (pointCount > 0) pointCount--;
                 System.err.println("Počet bodů: " + pointCount);
                 break;
+            case GLFW_KEY_KP_1:
+                subPixelCaption+=0.1;
+                System.out.println("Sub pixel" + subPixelCaption);
+                break;
+            case GLFW_KEY_KP_2:
+                subPixelCaption-=0.1;
+                System.out.println("Sub pixel" + subPixelCaption);
+                break;
+
+
             default:
                 System.err.println("Unknown key detected");
                 break;
