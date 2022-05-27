@@ -343,7 +343,9 @@ public class Renderer2 extends AbstractRenderer2 {
                 showMultipleObjects = !showMultipleObjects;
                 break;
             case GLFW_KEY_N:
-                showFilter ^= 1;
+                if (showFilter < 3) showFilter++;
+                if (showFilter == 3) showFilter = 0;
+                System.out.println("Filter type" + showFilter);
                 break;
             case GLFW_KEY_F:
                 showTrianglesStrips = !showTrianglesStrips;
@@ -371,8 +373,6 @@ public class Renderer2 extends AbstractRenderer2 {
                 subPixelCaption-=0.1;
                 System.out.println("Sub pixel" + subPixelCaption);
                 break;
-
-
             default:
                 System.err.println("Unknown key detected");
                 break;
