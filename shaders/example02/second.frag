@@ -198,7 +198,6 @@ vec3 fxaaWithSettings(sampler2D texture, vec2 pos, vec2 frame) {
 	return (vec3(-blendL) * rgbF) + ((rgbL * vec3(blendL)) + rgbF);
 }
 
-
 struct verRgb {
 	vec2 NW;
 	vec2 NE;
