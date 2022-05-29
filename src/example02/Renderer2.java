@@ -366,12 +366,28 @@ public class Renderer2 extends AbstractRenderer2 {
                 System.err.println("Počet bodů: " + pointCount);
                 break;
             case GLFW_KEY_KP_1:
-                subPixelCaption+=0.1;
+                subPixelCaption += 0.1;
                 System.out.println("Sub pixel" + subPixelCaption);
                 break;
             case GLFW_KEY_KP_2:
-                subPixelCaption-=0.1;
+                subPixelCaption -= 0.1;
                 System.out.println("Sub pixel" + subPixelCaption);
+                break;
+            case GLFW_KEY_KP_4:
+                subPixelTrim += 0.1;
+                System.out.println("Sub pixel trim" + subPixelTrim);
+                break;
+            case GLFW_KEY_KP_5:
+                subPixelTrim -= 0.1;
+                System.out.println("Sub pixel trim" + subPixelTrim);
+                break;
+            case GLFW_KEY_KP_7:
+                stepsAround += 2;
+                System.out.println("steps -" + subPixelTrim);
+                break;
+            case GLFW_KEY_KP_8:
+                stepsAround -= 2;
+                System.out.println("steps - " + subPixelTrim);
                 break;
             default:
                 System.err.println("Unknown key detected");
@@ -474,6 +490,17 @@ public class Renderer2 extends AbstractRenderer2 {
                 textRenderer.addStr2D(indexW, 200, "M - show multiple objects");
             }
         }
+
+        if (showFilter == 1) {
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 40, "FXAA - preset basic");
+        }
+        textRenderer.setBackgroundColor(Color.BLUE);
+        if (showFilter == 2) {
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 80, "FXAA - with additional settings");
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 60, "\t " );
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 40, "FXAA - with additional settings");
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 20, "FXAA - with additional settings");
+        }
     }
 
     private void printingOGLUParameters() {
@@ -516,58 +543,6 @@ public class Renderer2 extends AbstractRenderer2 {
     private void setMSAA(int value) {
         glfwWindowHint(GLFW_STENCIL_BITS, value);
         glfwWindowHint(GLFW_SAMPLES, value);
-    }
-
-    void createBuffers() {
-        float[] cube = {
-                // bottom (z-) face
-                1, 0, 0,	0, 0, -1,
-                0, 0, 0,	0, 0, -1,
-                1, 1, 0,	0, 0, -1,
-                0, 1, 0,	0, 0, -1,
-                // top (z+) face
-                1, 0, 1,	0, 0, 1,
-                0, 0, 1,	0, 0, 1,
-                1, 1, 1,	0, 0, 1,
-                0, 1, 1,	0, 0, 1,
-                // x+ face
-                1, 1, 0,	1, 0, 0,
-                1, 0, 0,	1, 0, 0,
-                1, 1, 1,	1, 0, 0,
-                1, 0, 1,	1, 0, 0,
-                // x- face
-                0, 1, 0,	-1, 0, 0,
-                0, 0, 0,	-1, 0, 0,
-                0, 1, 1,	-1, 0, 0,
-                0, 0, 1,	-1, 0, 0,
-                // y+ face
-                1, 1, 0,	0, 1, 0,
-                0, 1, 0,	0, 1, 0,
-                1, 1, 1,	0, 1, 0,
-                0, 1, 1,	0, 1, 0,
-                // y- face
-                1, 0, 0,	0, -1, 0,
-                0, 0, 0,	0, -1, 0,
-                1, 0, 1,	0, -1, 0,
-                0, 0, 1,	0, -1, 0
-        };
-
-        int[] indexBufferData = new int[36];
-        for (int i = 0; i<6; i++){
-            indexBufferData[i*6] = i*4;
-            indexBufferData[i*6 + 1] = i*4 + 1;
-            indexBufferData[i*6 + 2] = i*4 + 2;
-            indexBufferData[i*6 + 3] = i*4 + 1;
-            indexBufferData[i*6 + 4] = i*4 + 2;
-            indexBufferData[i*6 + 5] = i*4 + 3;
-        }
-        OGLBuffers.Attrib[] attributes = {
-                new OGLBuffers.Attrib("inPosition", 3),
-                new OGLBuffers.Attrib("inNormal", 3)
-        };
-
-        buffersMain = new OGLBuffers(cube, attributes, indexBufferData);
-        System.out.println(buffersMain.toString());
     }
 
     @Override

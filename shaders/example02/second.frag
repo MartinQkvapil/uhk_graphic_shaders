@@ -56,20 +56,20 @@ float lumaColor(vec3 rgb) {
 	return rgb.y * (0.587/0.299) + rgb.x;
 }
 
-vec4 fxaaPixelOffset(sampler2D tex, vec2 pos, ivec2 off, vec2 rcp_frame) {
-	float x = pos.x + float(off.x) * rcp_frame.x;
-	float y = pos.y + float(off.y) * rcp_frame.y;
+vec4 fxaaPixelOffset(sampler2D tex, vec2 pos, ivec2 off, vec2 frame) {
+	float x = pos.x + float(off.x) * frame.x;
+	float y = pos.y + float(off.y) * frame.y;
 	return texture(tex, vec2(x,y));
 }
 
-vec3 fxaaAdvanced(sampler2D texture, vec2 pos, vec2 rcp_frame) {
+vec3 fxaaWithSettings(sampler2D texture, vec2 pos, vec2 frame) {
 	float subpixTrimSize = 1.0/(1.0 - subPixelTrim);
 
-	vec3 rgbN = fxaaPixelOffset(texture, pos.xy, ivec2( 0,-1), rcp_frame).xyz;
-	vec3 rgbW = fxaaPixelOffset(texture, pos.xy, ivec2(-1, 0), rcp_frame).xyz;
-	vec3 rgbM = fxaaPixelOffset(texture, pos.xy, ivec2( 0, 0), rcp_frame).xyz;
-	vec3 rgbE = fxaaPixelOffset(texture, pos.xy, ivec2( 1, 0), rcp_frame).xyz;
-	vec3 rgbS = fxaaPixelOffset(texture, pos.xy, ivec2( 0, 1), rcp_frame).xyz;
+	vec3 rgbN = fxaaPixelOffset(texture, pos.xy, ivec2( 0,-1), frame).xyz;
+	vec3 rgbW = fxaaPixelOffset(texture, pos.xy, ivec2(-1, 0), frame).xyz;
+	vec3 rgbM = fxaaPixelOffset(texture, pos.xy, ivec2( 0, 0), frame).xyz;
+	vec3 rgbE = fxaaPixelOffset(texture, pos.xy, ivec2( 1, 0), frame).xyz;
+	vec3 rgbS = fxaaPixelOffset(texture, pos.xy, ivec2( 0, 1), frame).xyz;
 
 	float lumaN = lumaColor(rgbN);
 	float lumaW = lumaColor(rgbW);
@@ -91,10 +91,11 @@ vec3 fxaaAdvanced(sampler2D texture, vec2 pos, vec2 rcp_frame) {
 	float blendL = max(0.0, (rangeL / (rangeMax - rangeMin)) - subPixelTrim) * subpixTrimSize;
 	blendL = min(subPixelCaption, blendL);
 
-	vec3 rgbNW = fxaaPixelOffset(texture, pos.xy, ivec2(-1,-1), rcp_frame).xyz;
-	vec3 rgbNE = fxaaPixelOffset(texture, pos.xy, ivec2( 1,-1), rcp_frame).xyz;
-	vec3 rgbSW = fxaaPixelOffset(texture, pos.xy, ivec2(-1, 1), rcp_frame).xyz;
-	vec3 rgbSE = fxaaPixelOffset(texture, pos.xy, ivec2( 1, 1), rcp_frame).xyz;
+	vec3 rgbNW = fxaaPixelOffset(texture, pos.xy, ivec2(-1,-1), frame).xyz;
+	vec3 rgbNE = fxaaPixelOffset(texture, pos.xy, ivec2( 1,-1), frame).xyz;
+	vec3 rgbSW = fxaaPixelOffset(texture, pos.xy, ivec2(-1, 1), frame).xyz;
+	vec3 rgbSE = fxaaPixelOffset(texture, pos.xy, ivec2( 1, 1), frame).xyz;
+
 	rgbL += (rgbNW + rgbNE + rgbSW + rgbSE);
 	rgbL *= vec3(1.0/9.0);
 
@@ -108,6 +109,7 @@ vec3 fxaaAdvanced(sampler2D texture, vec2 pos, vec2 rcp_frame) {
 		abs((0.50 * lumaW ) + (-1.0 * lumaM) + (0.50 * lumaE )) +
 		abs((0.25 * lumaSW) + (-0.5 * lumaS) + (0.25 * lumaSE)
 	);
+
 	float edgeHorz =
 		abs((0.25 * lumaNW) + (-0.5 * lumaW) + (0.25 * lumaSW)) +
 		abs((0.50 * lumaN ) + (-1.0 * lumaM) + (0.50 * lumaS )) +
@@ -115,7 +117,7 @@ vec3 fxaaAdvanced(sampler2D texture, vec2 pos, vec2 rcp_frame) {
 	);
 
 	bool horzSpan = edgeHorz >= edgeVert;
-	float lengthSign = horzSpan ? -rcp_frame.y : -rcp_frame.x;
+	float lengthSign = horzSpan ? -frame.y : -frame.x;
 
 	if(!horzSpan) {
 		lumaN = lumaW;
@@ -142,7 +144,7 @@ vec3 fxaaAdvanced(sampler2D texture, vec2 pos, vec2 rcp_frame) {
 	gradientN *= stepsThreshold;
 
 	vec2 posP = posN;
-	vec2 offNP = horzSpan ? vec2(rcp_frame.x, 0.0) : vec2(0.0, rcp_frame.y);
+	vec2 offNP = horzSpan ? vec2(frame.x, 0.0) : vec2(0.0, frame.y);
 	float lumaEndN = lumaN;
 	float lumaEndP = lumaN;
 
@@ -195,7 +197,7 @@ vec3 fxaaAdvanced(sampler2D texture, vec2 pos, vec2 rcp_frame) {
 }
 
 
-struct v_rgb {
+struct verRgb {
 	vec2 NW;
 	vec2 NE;
 	vec2 SW;
@@ -211,10 +213,10 @@ struct luma {
 	float M;
 };
 
-float FXAA_REDUCE_MIN = (1.0 / 128.0);
-float FXAA_REDUCE_MUL = (1.0 / 8.0);
-float FXAA_SCOPE_MAX = 20.0;
-vec3 SHADE = vec3(0.299, 0.587, 0.114);
+float reduceMin = (1.0 / 128.0);
+float reduceMul = (1.0 / 8.0);
+float scopeMax = 20.0;
+vec3 shade = vec3(0.299, 0.587, 0.114);
 
 void main() {
 	vec2 uv = setUv(revertTexture, win_size);
@@ -224,7 +226,8 @@ void main() {
 		outColor = texture(textureRendered, coordV2);
 	}
 	if (showFilter == 1) {	vec2 inverseVP = 1.0 / vec2(window_width, window_height).xy;
-		v_rgb v_rgb = v_rgb(
+		
+		verRgb verRgb = verRgb(
 		(gl_FragCoord.st + vec2(-1.0, -1.0)) * inverseVP,
 		(gl_FragCoord.st + vec2(1.0, -1.0)) * inverseVP,
 		(gl_FragCoord.st + vec2(-1.0, 1.0)) * inverseVP,
@@ -232,15 +235,15 @@ void main() {
 		vec2(gl_FragCoord.st * inverseVP)
 		);
 
-		vec4 texColor = texture(textureRendered, v_rgb.M);
+		vec4 texColor = texture(textureRendered, verRgb.M);
 		vec3 rgbM  = texColor.xyz;
 
 		luma l = luma(
-			dot(texture(textureRendered, v_rgb.NW).xyz, SHADE),
-			dot(texture(textureRendered, v_rgb.NE).xyz, SHADE),
-			dot(texture(textureRendered, v_rgb.SW).xyz, SHADE),
-			dot(texture(textureRendered, v_rgb.SE).xyz, SHADE),
-			dot(texture(textureRendered, v_rgb.M).xyz,  SHADE)
+			dot(texture(textureRendered, verRgb.NW).xyz, shade),
+			dot(texture(textureRendered, verRgb.NE).xyz, shade),
+			dot(texture(textureRendered, verRgb.SW).xyz, shade),
+			dot(texture(textureRendered, verRgb.SE).xyz, shade),
+			dot(texture(textureRendered, verRgb.M).xyz,  shade)
 		);
 
 		float lumaMin = min(l.M, min(min(l.NW, l.NE), min(l.SW, l.SE)));
@@ -250,11 +253,11 @@ void main() {
 		direction.x = -((l.NW + l.NE) - (l.SW + l.SE));
 		direction.y =  ((l.NW + l.SW) - (l.NE + l.SE));
 
-		float directionReduce = max((l.NW + l.NE + l.SW + l.SE) *	(0.25 * FXAA_REDUCE_MUL), FXAA_REDUCE_MIN);
+		float directionReduce = max((l.NW + l.NE + l.SW + l.SE) *	(0.25 * reduceMul), reduceMin);
 
 		float rcpDirMin = 1.0 / (min(abs(direction.x), abs(direction.y)) + directionReduce);
-		direction = min(vec2(FXAA_SCOPE_MAX, FXAA_SCOPE_MAX),
-		max(vec2(-FXAA_SCOPE_MAX, -FXAA_SCOPE_MAX),
+		direction = min(vec2(scopeMax, scopeMax),
+		max(vec2(-scopeMax, -scopeMax),
 		direction * rcpDirMin)) * inverseVP;
 
 		vec3 rgbA = 0.5 * (
@@ -267,18 +270,15 @@ void main() {
 			texture(textureRendered, gl_FragCoord.st * inverseVP + direction * 0.5).xyz
 		);
 
-		float lumaB = dot(rgbB, SHADE);
+		float lumaB = dot(rgbB, shade);
 
 		if ((lumaB < lumaMin) || (lumaB > lumaMax)) {
 			outColor = vec4(rgbA, texColor.a);
 		} else {
 			outColor = vec4(rgbB, texColor.a);
 		}
-
 	}
 	if (showFilter == 2) {
-		outColor = vec4(fxaaAdvanced(textureRendered, uv, inverseVP), 1.0) * 1.0;
+		outColor = vec4(fxaaWithSettings(textureRendered, uv, inverseVP), 1.0) * 1.0;
 	}
-
-
 }
