@@ -75,16 +75,9 @@ public class Renderer2 extends AbstractRenderer2 {
     private float lightMoving = 0f;
     private float spotLight = 0.97f;
 
-    // FXAA
-    private float edgeThreshold = 0f;  // from 0 to 1
-    private float edgeThresholdMin = 1f; // from 0 to 1
     private float stepsAround = 3f; // from 2 to more and more
-    private float stepsThreshold = 1f; // from 0 to 1
-
     private float subPixelCaption = 1f; // from 0 to 1
     private float subPixelTrim = 1f; // from -1 to 1
-
-    private int flipTexture = 0;
 
 
     @Override
@@ -252,11 +245,19 @@ public class Renderer2 extends AbstractRenderer2 {
         glUniform1f(WHeight, LwjglWindow2.HEIGHT);
 
         // FXAA
+        // FXAA
+        // from 0 to 1
+        float edgeThreshold = 0f;
         glUniform1f(edgeThresholdLocation, edgeThreshold);
+        // from 0 to 1
+        float edgeThresholdMin = 1f;
         glUniform1f(edgeThresholdMinLocation, edgeThresholdMin);
         glUniform1f(stepsAroundLocation, stepsAround);
+        // from 0 to 1
+        float stepsThreshold = 1f;
         glUniform1f(stepsThresholdLocation, stepsThreshold);
         glUniform1f(subPixelCaptionLocation, subPixelCaption);
+        int flipTexture = 0;
         glUniform1f(flipTextureLocation, flipTexture);
 
         glUniform1f(subPixelTrimLocation, subPixelTrim);
@@ -366,28 +367,23 @@ public class Renderer2 extends AbstractRenderer2 {
                 System.err.println("Počet bodů: " + pointCount);
                 break;
             case GLFW_KEY_KP_1:
-                subPixelCaption += 0.1;
-                System.out.println("Sub pixel" + subPixelCaption);
+                if (subPixelCaption < 1) { subPixelCaption += 0.01; }
                 break;
             case GLFW_KEY_KP_2:
-                subPixelCaption -= 0.1;
-                System.out.println("Sub pixel" + subPixelCaption);
+                if (subPixelCaption > 0) { subPixelCaption -= 0.01; }
                 break;
             case GLFW_KEY_KP_4:
-                subPixelTrim += 0.1;
-                System.out.println("Sub pixel trim" + subPixelTrim);
+                if (subPixelTrim < 1) { subPixelTrim += 0.01; }
                 break;
             case GLFW_KEY_KP_5:
-                subPixelTrim -= 0.1;
-                System.out.println("Sub pixel trim" + subPixelTrim);
+                if (subPixelTrim > 0) { subPixelTrim -= 0.01; }
                 break;
             case GLFW_KEY_KP_7:
-                stepsAround += 2;
-                System.out.println("steps -" + subPixelTrim);
+                if (stepsAround < 1000) { stepsAround++; }
                 break;
             case GLFW_KEY_KP_8:
-                stepsAround -= 2;
-                System.out.println("steps - " + subPixelTrim);
+                if (stepsAround > 0) { stepsAround--; }
+
                 break;
             default:
                 System.err.println("Unknown key detected");
@@ -496,10 +492,10 @@ public class Renderer2 extends AbstractRenderer2 {
         }
         textRenderer.setBackgroundColor(Color.BLUE);
         if (showFilter == 2) {
-            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 80, "FXAA - with additional settings");
-            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 60, "\t " );
-            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 40, "FXAA - with additional settings");
-            textRenderer.addStr2D(LwjglWindow2.WIDTH - 200, LwjglWindow2.HEIGHT - 20, "FXAA - with additional settings");
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 500, LwjglWindow2.HEIGHT - 80, "FXAA - with additional settings");
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 500, LwjglWindow2.HEIGHT - 60, "\t Prolnutí subpixelů (0 to 1): [control keys: 1, 2] " + subPixelCaption);
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 500, LwjglWindow2.HEIGHT - 40, "\t Ořezání subpixelů (0 to 1): [control keys: 4, 5]" + subPixelTrim);
+            textRenderer.addStr2D(LwjglWindow2.WIDTH - 500, LwjglWindow2.HEIGHT - 20, "\t Quality (2 to max): [control keys: 7, 8] " + stepsAround);
         }
     }
 

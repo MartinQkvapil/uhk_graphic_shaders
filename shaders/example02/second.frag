@@ -16,20 +16,21 @@ vec2 win_size = vec2(window_width, window_height);
 uniform bool revertTextureBool;
 ivec2 revertTexture = ivec2(revertTextureBool);
 
-uniform float edgeThreshold; /* 0.0 - 1.0*/
-uniform float edgeThresholdMin; /* 0.0 - 1.0*/
+uniform float edgeThreshold; /* 0.0 - 1.0 */
+float edgeThresholdMin = 1.f;
 
 uniform int stepsAround; /* more than 2 */
 uniform float stepsThreshold; /* 0.0 - 1.0*/
 
-uniform float subPixelCaption; /* 0.0 - 1.0 */
-uniform float subPixelTrim; /* -1.0 - 1.0 */
+uniform float subPixelCaption; // Prolnutí subpixelů
+uniform float subPixelTrim;
 
 uniform float showFilter;
 uniform float timeFilter;
 
 vec2 setUv(float vertical, float horizontal, vec2 res) {
 	vec2 uv;
+
 	if (all(equal( vec2(0), res))) {
 		uv = coord.st;
 	} else if(all(greaterThan(res,coord.st))) {
@@ -38,17 +39,15 @@ vec2 setUv(float vertical, float horizontal, vec2 res) {
 		uv = res;
 	}
 
-	// flip
-	float condition_y = step( 0.1, vertical);
-	uv.y = 1.0 -(uv.y *condition_y +(1.0 -uv.y) *(1.0 -condition_y));
+	float condY = step( 0.1f, vertical);
+	uv.y = 1f -(uv.y * condY +(1f -uv.y) *(1f - condY));
 
-	float condition_x = step( 0.1, horizontal);
-	uv.x = 1.0 -(uv.x *condition_x +(1.0 -uv.x) *(1.0 -condition_x));
-
+	float condX = step( 0.1f, horizontal);
+	uv.x = 1f -(uv.x *condX +(1f -uv.x) * (1f - condX));
 	return uv;
 }
 
-vec2 setUv(ivec2 flip, vec2 res) {
+vec2 setUv(vec2 flip, vec2 res) {
 	return setUv(flip.x,flip.y,res);
 }
 
@@ -63,7 +62,7 @@ vec4 fxaaPixelOffset(sampler2D tex, vec2 pos, ivec2 off, vec2 frame) {
 }
 
 vec3 fxaaWithSettings(sampler2D texture, vec2 pos, vec2 frame) {
-	float subpixTrimSize = 1.0/(1.0 - subPixelTrim);
+	float subpixTrimSize = 1.0 / (1.0 - subPixelTrim); // skip low contrast pix
 
 	vec3 rgbN = fxaaPixelOffset(texture, pos.xy, ivec2( 0,-1), frame).xyz;
 	vec3 rgbW = fxaaPixelOffset(texture, pos.xy, ivec2(-1, 0), frame).xyz;
@@ -89,7 +88,8 @@ vec3 fxaaWithSettings(sampler2D texture, vec2 pos, vec2 frame) {
 	float lumaL = (lumaN + lumaW + lumaE + lumaS) * 0.25;
 	float rangeL = abs(lumaL - lumaM);
 	float blendL = max(0.0, (rangeL / (rangeMax - rangeMin)) - subPixelTrim) * subpixTrimSize;
-	blendL = min(subPixelCaption, blendL);
+
+	blendL = min(subPixelCaption, blendL); // Prolnutí subpixelů.
 
 	vec3 rgbNW = fxaaPixelOffset(texture, pos.xy, ivec2(-1,-1), frame).xyz;
 	vec3 rgbNE = fxaaPixelOffset(texture, pos.xy, ivec2( 1,-1), frame).xyz;
@@ -104,22 +104,22 @@ vec3 fxaaWithSettings(sampler2D texture, vec2 pos, vec2 frame) {
 	float lumaSW = lumaColor(rgbSW);
 	float lumaSE = lumaColor(rgbSE);
 
-	float edgeVert =
-		abs((0.25 * lumaNW) + (-0.5 * lumaN) + (0.25 * lumaNE)) +
-		abs((0.50 * lumaW ) + (-1.0 * lumaM) + (0.50 * lumaE )) +
-		abs((0.25 * lumaSW) + (-0.5 * lumaS) + (0.25 * lumaSE)
+	float vertikalniHrana =
+	abs((0.25 * lumaNW) + (-0.5 * lumaN) + (0.25 * lumaNE)) +
+	abs((0.50 * lumaW ) + (-1.0 * lumaM) + (0.50 * lumaE )) +
+	abs((0.25 * lumaSW) + (-0.5 * lumaS) + (0.25 * lumaSE)
 	);
 
-	float edgeHorz =
-		abs((0.25 * lumaNW) + (-0.5 * lumaW) + (0.25 * lumaSW)) +
-		abs((0.50 * lumaN ) + (-1.0 * lumaM) + (0.50 * lumaS )) +
-		abs((0.25 * lumaNE) + (-0.5 * lumaE) + (0.25 * lumaSE)
+	float horizontalniHrana =
+	abs((0.25 * lumaNW) + (-0.5 * lumaW) + (0.25 * lumaSW)) +
+	abs((0.50 * lumaN ) + (-1.0 * lumaM) + (0.50 * lumaS )) +
+	abs((0.25 * lumaNE) + (-0.5 * lumaE) + (0.25 * lumaSE)
 	);
 
-	bool horzSpan = edgeHorz >= edgeVert;
-	float lengthSign = horzSpan ? -frame.y : -frame.x;
+	bool smer = horizontalniHrana >= vertikalniHrana;
+	float smerMichani = smer ? -frame.y : -frame.x;
 
-	if(!horzSpan) {
+	if(!smer) {
 		lumaN = lumaW;
 		lumaS = lumaE;
 	}
@@ -134,17 +134,17 @@ vec3 fxaaWithSettings(sampler2D texture, vec2 pos, vec2 frame) {
 		lumaN = lumaS;
 		lumaN = lumaS;
 		gradientN = gradientS;
-		lengthSign *= -1.0;
+		smerMichani *= -1.0;
 	}
 
 	vec2 posN;
-	posN.x = pos.x + (horzSpan ? 0.0 : lengthSign * 0.5);
-	posN.y = pos.y + (horzSpan ? lengthSign * 0.5 : 0.0);
+		posN.x = pos.x + (smer ? 0.0 : smerMichani * 0.5);
+		posN.y = pos.y + (smer ? smerMichani * 0.5 : 0.0);
 
 	gradientN *= stepsThreshold;
 
 	vec2 posP = posN;
-	vec2 offNP = horzSpan ? vec2(frame.x, 0.0) : vec2(0.0, frame.y);
+	vec2 offNP = smer ? vec2(frame.x, 0.0) : vec2(0.0, frame.y);
 	float lumaEndN = lumaN;
 	float lumaEndP = lumaN;
 
@@ -176,22 +176,24 @@ vec3 fxaaWithSettings(sampler2D texture, vec2 pos, vec2 frame) {
 		}
 	}
 
-	float dstN = horzSpan ? pos.x - posN.x : pos.y - posN.y;
-	float dstP = horzSpan ? posP.x - pos.x : posP.y - pos.y;
-	bool directionN = dstN < dstP;
-	lumaEndN = directionN ? lumaEndN : lumaEndP;
+	float vzdalenostN = smer ? pos.x - posN.x : pos.y - posN.y;
+	float vzdalenostP = smer ? posP.x - pos.x : posP.y - pos.y;
 
-	if(((lumaM - lumaN) < 0.0) == ((lumaEndN - lumaN) < 0.0)) {
-		lengthSign = 0.0;
+	bool smerN = vzdalenostN < vzdalenostP;
+	lumaEndN = smerN ? lumaEndN : lumaEndP;
+
+	if (((lumaM - lumaN) < 0.0) == ((lumaEndN - lumaN) < 0.0)) {
+		smerMichani = 0.0;
 	}
 
-	float spanLength = (dstP + dstN);
-	dstN = directionN ? dstN : dstP;
-	float subPixelOffset = (0.5 + (dstN * (-1.0 / spanLength))) * lengthSign;
+	float spanLength = (vzdalenostP + vzdalenostN);
+	vzdalenostN = smerN ? vzdalenostN : vzdalenostP;
+
+	float subPixelOffset = (0.5 + (vzdalenostN * (-1.0 / spanLength))) * smerMichani;
 
 	vec3 rgbF = texture2D(texture, vec2(
-	pos.x + (horzSpan ? 0.0 : subPixelOffset),
-	pos.y + (horzSpan ? subPixelOffset : 0.0))).xyz;
+		pos.x + (smer ? 0.0 : subPixelOffset),
+		pos.y + (smer ? subPixelOffset : 0.0))).xyz;
 
 	return (vec3(-blendL) * rgbF) + ((rgbL * vec3(blendL)) + rgbF);
 }
