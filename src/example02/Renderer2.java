@@ -346,7 +346,6 @@ public class Renderer2 extends AbstractRenderer2 {
             case GLFW_KEY_N:
                 if (showFilter < 3) showFilter++;
                 if (showFilter == 3) showFilter = 0;
-                System.out.println("Filter type" + showFilter);
                 break;
             case GLFW_KEY_F:
                 showTrianglesStrips = !showTrianglesStrips;
@@ -360,11 +359,9 @@ public class Renderer2 extends AbstractRenderer2 {
                 break;
             case GLFW_KEY_PAGE_UP:
                 if (pointCount < 100) pointCount++;
-                System.err.println("Počet bodů: " + pointCount);
                 break;
             case GLFW_KEY_PAGE_DOWN:
                 if (pointCount > 0) pointCount--;
-                System.err.println("Počet bodů: " + pointCount);
                 break;
             case GLFW_KEY_KP_1:
                 if (subPixelCaption < 1) { subPixelCaption += 0.01; }
